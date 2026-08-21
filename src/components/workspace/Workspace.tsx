@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { DocApi } from '../../hooks/useDocument'
 import type { EditElement, EditSession, EditToolMode } from '../../lib/editTypes'
 import { ThumbnailRail } from './ThumbnailRail'
+import { LayersPanel } from './LayersPanel'
 import { CanvasView } from './CanvasView'
 import { ToolPanel } from './ToolPanel'
 import { SignatureModal } from './SignatureModal'
@@ -137,6 +138,7 @@ export function Workspace({ doc, onHome }: { doc: DocApi; onHome: () => void }) 
         </div>
       )}
       <ThumbnailRail doc={doc} />
+      <LayersPanel doc={doc} edit={edit} />
       <CanvasView doc={doc} onHome={onHome} edit={edit} />
       <ToolPanel doc={doc} edit={edit} toolId={toolId} setToolId={setToolId} />
       {sigModalOpen && (

@@ -22,6 +22,22 @@ interface BBox {
   h: number
 }
 
+type HandleId = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w'
+
+interface Drag {
+  id: string
+  mode: 'move' | 'resize'
+  handle: HandleId | null
+  startPt: { x: number; y: number }
+  start: BBox
+  // Element as it was when the drag began; cumulative deltas are applied to it
+  // so repeated pointermoves never compound.
+  snapshot: EditElement | null
+}
+
+const HANDLE_IDS: HandleId[] = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']
+const MIN_EL_SIZE = 12
+
 const imgCache = new Map<string, HTMLImageElement>()
 
 function bboxOf(el: EditElement): BBox {
@@ -69,6 +85,78 @@ function getImage(dataUrl: string, onLoad: () => void): HTMLImageElement | null 
   return null
 }
 
+// Resize handles are only meaningful for elements with a rectangular bbox;
+// notes, arrows and ink strokes keep move + delete only.
+function handlesFor(el: EditElement): boolean {
+  return el.kind !== 'note' && el.kind !== 'line' && el.kind !== 'ink'
+}
+
+function handleCenters(b: BBox): Record<HandleId, [number, number]> {
+  return {
+    nw: [b.x - 3, b.y - 3],
+    n: [b.x + b.w / 2, b.y - 3],
+    ne: [b.x + b.w + 3, b.y - 3],
+    e: [b.x + b.w + 3, b.y + b.h / 2],
+    se: [b.x + b.w + 3, b.y + b.h + 3],
+    s: [b.x + b.w / 2, b.y + b.h + 3],
+    sw: [b.x - 3, b.y + b.h + 3],
+    w: [b.x - 3, b.y + b.h / 2],
+  }
+}
+
+function hitHandle(p: { x: number; y: number }, b: BBox): HandleId | null {
+  const centers = handleCenters(b)
+  for (const id of HANDLE_IDS) {
+    const [cx, cy] = centers[id]
+    if (Math.abs(p.x - cx) <= 5.5 && Math.abs(p.y - cy) <= 5.5) return id
+  }
+  return null
+}
+
+function resizeBBox(
+  start: BBox,
+  handle: HandleId,
+  dx: number,
+  dy: number,
+  keepAspect: boolean,
+): BBox {
+  let x = start.x
+  let y = start.y
+  let w = start.w
+  let h = start.h
+  const west = handle.includes('w')
+  const east = handle.includes('e')
+  const north = handle.includes('n')
+  const south = handle.includes('s')
+  if (east) w = start.w + dx
+  if (south) h = start.h + dy
+  if (west) {
+    x = start.x + dx
+    w = start.w - dx
+  }
+  if (north) {
+    y = start.y + dy
+    h = start.h - dy
+  }
+  if (keepAspect && w > 0 && h > 0) {
+    // Grow along the dominant axis so images keep their shape.
+    const scale = Math.max(w / start.w, h / start.h)
+    w = start.w * scale
+    h = start.h * scale
+    if (west) x = start.x + start.w - w
+    if (north) y = start.y + start.h - h
+  }
+  if (w < MIN_EL_SIZE) {
+    if (west) x = start.x + start.w - MIN_EL_SIZE
+    w = MIN_EL_SIZE
+  }
+  if (h < MIN_EL_SIZE) {
+    if (north) y = start.y + start.h - MIN_EL_SIZE
+    h = MIN_EL_SIZE
+  }
+  return { x, y, w, h }
+}
+
 export function CanvasView({
   doc,
   onHome,
@@ -82,7 +170,7 @@ export function CanvasView({
   const overlayRef = useRef<HTMLCanvasElement>(null)
   const busyRef = useRef(false)
   const tokenRef = useRef(0)
-  const dragRef = useRef<{ id: string; dx: number; dy: number } | null>(null)
+  const dragRef = useRef<Drag | null>(null)
   const drawingRef = useRef(false)
   const [pageSize, setPageSize] = useState<{ width: number; height: number } | null>(null)
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -175,6 +263,14 @@ export function CanvasView({
     edit.setSelection(el.id)
   }
 
+  const capturePointer = (e: ReactPointerEvent<HTMLCanvasElement>) => {
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // Pointer capture can fail for synthetic/edge-case events; drag still works.
+    }
+  }
+
   const hitTest = (p: { x: number; y: number }): { id: string; x: number; y: number } | null => {
     const els = edit.elements.filter((el) => el.page === currentPage)
     for (let i = els.length - 1; i >= 0; i--) {
@@ -195,10 +291,45 @@ export function CanvasView({
   const onPointerDown = (e: ReactPointerEvent<HTMLCanvasElement>) => {
     const p = toPt(e)
     if (edit.editMode === 'select') {
+      const selectedEl = edit.elements.find((el) => el.id === edit.selection)
+      if (selectedEl && selectedEl.page === currentPage) {
+        const b = bboxOf(selectedEl)
+        // Delete button floating at the selection corner.
+        const delX = b.x + b.w + 16
+        const delY = b.y - 16
+        if (Math.hypot(p.x - delX, p.y - delY) <= 10) {
+          edit.setElements((prev) => prev.filter((el) => el.id !== selectedEl.id))
+          edit.setSelection(null)
+          return
+        }
+        // Resize handles.
+        const handle = handlesFor(selectedEl) ? hitHandle(p, b) : null
+        if (handle) {
+          dragRef.current = {
+            id: selectedEl.id,
+            mode: 'resize',
+            handle,
+            startPt: p,
+            start: b,
+            snapshot: selectedEl,
+          }
+          capturePointer(e)
+          return
+        }
+      }
       const hit = hitTest(p)
       if (hit) {
         edit.setSelection(hit.id)
-        dragRef.current = { id: hit.id, dx: p.x - hit.x, dy: p.y - hit.y }
+        const hitEl = edit.elements.find((el) => el.id === hit.id)
+        dragRef.current = {
+          id: hit.id,
+          mode: 'move',
+          handle: null,
+          startPt: p,
+          start: hitEl ? bboxOf(hitEl) : { x: 0, y: 0, w: 0, h: 0 },
+          snapshot: hitEl ?? null,
+        }
+        capturePointer(e)
       } else {
         edit.setSelection(null)
         dragRef.current = null
@@ -219,11 +350,7 @@ export function CanvasView({
       return
     }
     if (!pageSize) return
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch {
-      // Pointer capture can fail for synthetic/edge-case events; drawing still works.
-    }
+    capturePointer(e)
     drawingRef.current = true
     switch (edit.editMode) {
       case 'text':
@@ -257,6 +384,8 @@ export function CanvasView({
             dataUrl: edit.signature.dataUrl,
             name: edit.signature.name,
           })
+          // Back to Select so the new signature can be moved/resized right away.
+          edit.setEditMode('select')
         }
         break
       case 'image':
@@ -274,6 +403,8 @@ export function CanvasView({
             dataUrl: edit.pendingImage.dataUrl,
             name: edit.pendingImage.name,
           })
+          // Back to Select so the new image can be moved/resized right away.
+          edit.setEditMode('select')
         }
         break
       case 'highlight':
@@ -335,23 +466,46 @@ export function CanvasView({
     const p = toPt(e)
     if (dragRef.current) {
       const drag = dragRef.current
+      if (drag.mode === 'resize') {
+        const dx = p.x - drag.startPt.x
+        const dy = p.y - drag.startPt.y
+        edit.setElements((prev) =>
+          prev.map((el) => {
+            if (el.id !== drag.id) return el
+            // Corner drags on images keep the aspect ratio so they don't stretch.
+            const corner =
+              drag.handle === 'nw' || drag.handle === 'ne' || drag.handle === 'se' || drag.handle === 'sw'
+            const keepAspect = corner && (el.kind === 'signature' || el.kind === 'image')
+            const nb = resizeBBox(drag.start, drag.handle!, dx, dy, keepAspect)
+            if (el.kind === 'text') {
+              const scale = drag.start.w > 0 ? nb.w / drag.start.w : 1
+              return {
+                ...el,
+                x: nb.x,
+                y: nb.y,
+                size: Math.min(72, Math.max(8, Math.round(el.size * scale))),
+              }
+            }
+            return { ...el, x: nb.x, y: nb.y, w: nb.w, h: nb.h }
+          }),
+        )
+        return
+      }
+      const dx = p.x - drag.startPt.x
+      const dy = p.y - drag.startPt.y
+      const s = drag.snapshot
+      if (!s) return
       edit.setElements((prev) =>
         prev.map((el) => {
           if (el.id !== drag.id) return el
-          const anchorX =
-            el.kind === 'line' ? el.x1 : el.kind === 'ink' ? (el.points[0] ?? 0) : el.x
-          const anchorY =
-            el.kind === 'line' ? el.y1 : el.kind === 'ink' ? (el.points[1] ?? 0) : el.y
-          const dx = p.x - drag.dx - anchorX
-          const dy = p.y - drag.dy - anchorY
-          if (el.kind === 'line') {
-            return { ...el, x1: el.x1 + dx, y1: el.y1 + dy, x2: el.x2 + dx, y2: el.y2 + dy }
+          if (s.kind === 'line') {
+            return { ...s, x1: s.x1 + dx, y1: s.y1 + dy, x2: s.x2 + dx, y2: s.y2 + dy }
           }
-          if (el.kind === 'ink') {
-            const points = el.points.map((v, i) => v + (i % 2 === 0 ? dx : dy))
-            return { ...el, points }
+          if (s.kind === 'ink') {
+            const points = s.points.map((v, i) => v + (i % 2 === 0 ? dx : dy))
+            return { ...s, points }
           }
-          return { ...el, x: el.x + dx, y: el.y + dy }
+          return { ...s, x: s.x + dx, y: s.y + dy }
         }),
       )
       return
@@ -566,6 +720,8 @@ export function CanvasView({
                 <li>
                   <kbd>Delete</kbd> Remove selected element
                 </li>
+                <li>Drag the handles to move or resize the selected element</li>
+                <li>Layers panel: click a layer to select, use ↑/↓ to reorder</li>
                 <li>
                   <kbd>Esc</kbd> Close popovers / deselect
                 </li>
@@ -590,7 +746,7 @@ export function CanvasView({
           <canvas ref={canvasRef} className="page-canvas" />
           <canvas
             ref={overlayRef}
-            className="overlay-canvas"
+            className={`overlay-canvas${edit.editMode === 'select' ? ' overlay-canvas--select' : ''}`}
             aria-label="Editing canvas — draw with the selected tool"
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
@@ -743,15 +899,31 @@ function drawElement(ctx: CanvasRenderingContext2D, el: EditElement, selected: b
     ctx.setLineDash([4, 3])
     ctx.strokeRect(b.x - 3, b.y - 3, b.w + 6, b.h + 6)
     ctx.setLineDash([])
+    if (handlesFor(el)) {
+      const centers = handleCenters(b)
+      for (const id of HANDLE_IDS) {
+        const [cx, cy] = centers[id]
+        ctx.fillStyle = '#fff'
+        ctx.strokeStyle = '#2b44ff'
+        ctx.lineWidth = 1.5
+        ctx.fillRect(cx - 3.5, cy - 3.5, 7, 7)
+        ctx.strokeRect(cx - 3.5, cy - 3.5, 7, 7)
+      }
+    }
+    // Delete button floating above the selection corner.
+    const delX = b.x + b.w + 16
+    const delY = b.y - 16
     ctx.fillStyle = '#2b44ff'
     ctx.beginPath()
-    ctx.arc(b.x + b.w + 3, b.y - 3, 5, 0, Math.PI * 2)
+    ctx.arc(delX, delY, 6, 0, Math.PI * 2)
     ctx.fill()
     ctx.fillStyle = '#fff'
-    ctx.font = 'bold 9px sans-serif'
+    ctx.font = 'bold 10px sans-serif'
     ctx.textAlign = 'center'
-    ctx.fillText('×', b.x + b.w + 3, b.y - 0.5)
+    ctx.textBaseline = 'middle'
+    ctx.fillText('×', delX, delY + 0.5)
     ctx.textAlign = 'start'
+    ctx.textBaseline = 'alphabetic'
   }
   ctx.restore()
 }

@@ -882,7 +882,7 @@ a {
 
 .workspace {
   display: grid;
-  grid-template-columns: 180px minmax(0, 1fr) 336px;
+  grid-template-columns: 180px 224px minmax(0, 1fr) 336px;
   gap: 10px;
   padding: 10px;
   flex: 1;
@@ -908,6 +908,7 @@ a {
 }
 
 .rail,
+.layers-panel,
 .canvas-pane,
 .toolpanel {
   background: var(--surface);
@@ -1009,6 +1010,104 @@ a {
 .thumb.selected .thumb-label {
   background: var(--pow);
   color: #17141b;
+}
+
+/* ---------- layers panel ---------- */
+.layers-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 10px 14px;
+}
+
+.layer-group-label {
+  font-family: var(--font-comic);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 10px 2px 5px;
+}
+
+.layer-group:first-child .layer-group-label {
+  margin-top: 2px;
+}
+
+.layer-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 7px;
+  border: var(--line-thin) solid transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  margin-bottom: 3px;
+  transition: background-color 0.1s ease;
+}
+
+.layer-row:hover {
+  background: var(--surface-2);
+}
+
+.layer-row.selected {
+  background: var(--zap);
+  border-color: var(--border);
+}
+
+.layer-ico {
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+
+.layer-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layer-actions {
+  flex: none;
+  display: none;
+  gap: 2px;
+}
+
+.layer-row:hover .layer-actions,
+.layer-row.selected .layer-actions {
+  display: flex;
+}
+
+.layer-actions button {
+  font: inherit;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.layer-actions button:hover:not(:disabled) {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.layer-actions button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.layers-empty {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 4px 2px;
 }
 
 .thumb-blank {
@@ -1482,6 +1581,10 @@ input[type='radio'] {
   touch-action: none;
 }
 
+.overlay-canvas--select {
+  cursor: default;
+}
+
 /* Speech-bubble hint under the page. */
 .edit-hint {
   position: absolute;
@@ -1530,6 +1633,12 @@ input[type='radio'] {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.geom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
 }
 
 .input-sm {
@@ -1841,6 +1950,20 @@ kbd {
     gap: 8px;
     padding: 8px;
     min-height: 620px;
+  }
+
+  .canvas-pane {
+    order: 1;
+  }
+
+  .toolpanel {
+    order: 2;
+  }
+
+  .layers-panel {
+    order: 3;
+    max-height: 220px;
+    min-height: 0;
   }
 
   .rail {

@@ -110,3 +110,25 @@ export interface EditSession {
 export function nextId(): string {
   return crypto.randomUUID()
 }
+
+/** Human-readable layer name shown in the Layers panel. */
+export function elementLabel(el: EditElement): string {
+  switch (el.kind) {
+    case 'text':
+      return el.text.trim() ? el.text.split('\n')[0] : 'Text'
+    case 'signature':
+      return el.name || 'Signature'
+    case 'image':
+      return el.name || 'Image'
+    case 'mark':
+      return el.type.charAt(0).toUpperCase() + el.type.slice(1)
+    case 'note':
+      return 'Note'
+    case 'shape':
+      return el.shape === 'rect' ? 'Rectangle' : 'Ellipse'
+    case 'line':
+      return 'Arrow'
+    case 'ink':
+      return 'Drawing'
+  }
+}

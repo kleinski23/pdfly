@@ -164,7 +164,7 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
       <h3>Edit page</h3>
       <p className="tool-hint">
         {edit.elements.length} element{edit.elements.length === 1 ? '' : 's'} on the canvas. Click
-        the page to add, drag to move, then Apply.
+        the page to add, drag to move, drag the handles to resize, then Apply.
       </p>
 
       <div className="mode-grid">
@@ -332,6 +332,56 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
                 <option value="right">Right</option>
               </select>
             </label>
+          )}
+          {(selected.kind === 'signature' || selected.kind === 'image') && (
+            <div className="geom-grid">
+              <label className="field">
+                X
+                <input
+                  className="input input-sm"
+                  type="number"
+                  value={Math.round(selected.x)}
+                  onChange={(e) => updateSelected({ x: Number(e.target.value) || 0 })}
+                  aria-label="Element X position"
+                />
+              </label>
+              <label className="field">
+                Y
+                <input
+                  className="input input-sm"
+                  type="number"
+                  value={Math.round(selected.y)}
+                  onChange={(e) => updateSelected({ y: Number(e.target.value) || 0 })}
+                  aria-label="Element Y position"
+                />
+              </label>
+              <label className="field">
+                Width
+                <input
+                  className="input input-sm"
+                  type="number"
+                  min={12}
+                  value={Math.round(selected.w)}
+                  onChange={(e) =>
+                    updateSelected({ w: Math.max(12, Number(e.target.value) || 12) })
+                  }
+                  aria-label="Element width"
+                />
+              </label>
+              <label className="field">
+                Height
+                <input
+                  className="input input-sm"
+                  type="number"
+                  min={12}
+                  value={Math.round(selected.h)}
+                  onChange={(e) =>
+                    updateSelected({ h: Math.max(12, Number(e.target.value) || 12) })
+                  }
+                  aria-label="Element height"
+                />
+              </label>
+            </div>
           )}
           {MARK_MODES.has(edit.editMode) && selected.kind === 'mark' && (
             <div className="tool-actions">
