@@ -53,9 +53,14 @@ export function ThumbnailRail({ doc }: { doc: DocApi }) {
   return (
     <aside className="rail" aria-label="Pages">
       <div className="rail-header">
-        Pages <span className="rail-count">{pageCount}</span>
+        <span>Pages</span>
+        <span className="rail-count">{pageCount}</span>
       </div>
-      <div className={`rail-list${mobile ? ' rail-list--mobile' : ''}`} ref={listRef} onScroll={updateWindow}>
+      <div
+        className={`rail-list${mobile ? ' rail-list--mobile' : ''}`}
+        ref={listRef}
+        onScroll={updateWindow}
+      >
         {!mobile && <div style={{ height: win.start * ITEM_H }} aria-hidden="true" />}
         {pages.map((p) => (
           <PageThumb
@@ -68,7 +73,9 @@ export function ThumbnailRail({ doc }: { doc: DocApi }) {
             onClick={(e) => select(p, e)}
           />
         ))}
-        {!mobile && <div style={{ height: Math.max(0, pageCount - win.end) * ITEM_H }} aria-hidden="true" />}
+        {!mobile && (
+          <div style={{ height: Math.max(0, pageCount - win.end) * ITEM_H }} aria-hidden="true" />
+        )}
       </div>
     </aside>
   )

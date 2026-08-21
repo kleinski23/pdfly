@@ -4,6 +4,7 @@ import { renderPageToCanvas } from '../../../lib/pdf'
 import { downloadBlob, downloadBytes } from '../../../lib/download'
 import { formatBytes } from '../../../lib/format'
 import type { DocApi } from '../../../hooks/useDocument'
+import { Icon } from '../../Icon'
 
 export function OcrTool({ doc }: { doc: DocApi }) {
   const [lang, setLang] = useState('eng')
@@ -18,7 +19,10 @@ export function OcrTool({ doc }: { doc: DocApi }) {
 
   const run = async () => {
     if (!doc.active || running) return
-    const pages = pagesMode === 'current' ? [doc.currentPage] : Array.from({ length: doc.pageCount }, (_, i) => i + 1)
+    const pages =
+      pagesMode === 'current'
+        ? [doc.currentPage]
+        : Array.from({ length: doc.pageCount }, (_, i) => i + 1)
     cancelRef.current = false
     setRunning(true)
     setProgress(0)
@@ -59,7 +63,8 @@ export function OcrTool({ doc }: { doc: DocApi }) {
     <div className="tool">
       <h3>OCR</h3>
       <p className="tool-hint">
-        Make scans searchable — 100% in your browser, files never uploaded. Language packs load on demand.
+        Make scans searchable — 100% in your browser, files never uploaded. Language packs load on
+        demand.
       </p>
 
       <label className="field">
@@ -79,7 +84,11 @@ export function OcrTool({ doc }: { doc: DocApi }) {
           All pages ({doc.pageCount})
         </label>
         <label className="radio-row">
-          <input type="radio" checked={pagesMode === 'current'} onChange={() => setPagesMode('current')} />
+          <input
+            type="radio"
+            checked={pagesMode === 'current'}
+            onChange={() => setPagesMode('current')}
+          />
           Current page only
         </label>
       </div>
@@ -90,8 +99,19 @@ export function OcrTool({ doc }: { doc: DocApi }) {
       </label>
 
       <div className="tool-actions">
-        <button type="button" className="btn btn-primary" onClick={() => void run()} disabled={running}>
-          {running ? 'Working…' : '🔍 Start OCR'}
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => void run()}
+          disabled={running}
+        >
+          {running ? (
+            'Working…'
+          ) : (
+            <>
+              <Icon name="ocr" size={15} strokeWidth={2.1} /> Start OCR
+            </>
+          )}
         </button>
         {running && (
           <button
@@ -107,7 +127,12 @@ export function OcrTool({ doc }: { doc: DocApi }) {
       </div>
 
       {running && (
-        <div className="ocr-progress" role="progressbar" aria-label="OCR progress" aria-valuenow={Math.round(progress * 100)}>
+        <div
+          className="ocr-progress"
+          role="progressbar"
+          aria-label="OCR progress"
+          aria-valuenow={Math.round(progress * 100)}
+        >
           <div className="demo-track">
             <div className="ocr-bar" style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
@@ -121,16 +146,26 @@ export function OcrTool({ doc }: { doc: DocApi }) {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => doc.mutate(result.bytes, `${doc.active?.name.replace(/\.pdf$/i, '') ?? 'document'}-ocr.pdf`)}
+              onClick={() =>
+                doc.mutate(
+                  result.bytes,
+                  `${doc.active?.name.replace(/\.pdf$/i, '') ?? 'document'}-ocr.pdf`,
+                )
+              }
             >
               Open searchable PDF
             </button>
             <button
               type="button"
               className="btn"
-              onClick={() => downloadBytes(result.bytes, `${doc.active?.name.replace(/\.pdf$/i, '') ?? 'document'}-ocr.pdf`)}
+              onClick={() =>
+                downloadBytes(
+                  result.bytes,
+                  `${doc.active?.name.replace(/\.pdf$/i, '') ?? 'document'}-ocr.pdf`,
+                )
+              }
             >
-              ⬇️ Download PDF
+              <Icon name="download" size={15} strokeWidth={2.1} /> Download PDF
             </button>
             <button
               type="button"
@@ -142,7 +177,7 @@ export function OcrTool({ doc }: { doc: DocApi }) {
                 )
               }
             >
-              ⬇️ Download text
+              <Icon name="download" size={15} strokeWidth={2.1} /> Download text
             </button>
           </div>
           {result.texts[0] && (
@@ -154,7 +189,11 @@ export function OcrTool({ doc }: { doc: DocApi }) {
         </div>
       )}
 
-      {msg && <p className={msg.includes('failed') || msg === 'Cancelled.' ? 'msg error' : 'msg ok'}>{msg}</p>}
+      {msg && (
+        <p className={msg.includes('failed') || msg === 'Cancelled.' ? 'msg error' : 'msg ok'}>
+          {msg}
+        </p>
+      )}
     </div>
   )
 }

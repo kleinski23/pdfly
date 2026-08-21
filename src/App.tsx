@@ -31,14 +31,16 @@ export default function App() {
           {view === 'landing' ? (
             <Home onFiles={handleFiles} />
           ) : (
-            <Suspense fallback={<div className="loading">Loading workspace…</div>}>
+            <Suspense fallback={<div className="loading">Inking the workspace…</div>}>
               <Workspace doc={doc} onHome={() => setView('landing')} />
             </Suspense>
           )}
         </main>
       </ErrorBoundary>
       {view === 'landing' && (
-        <footer className="footer">© 2026 PDFly · Free forever · Files never leave your device</footer>
+        <footer className="footer">
+          PDFly © 2026 · Free forever · Drawn by hand, run on your machine
+        </footer>
       )}
     </div>
   )

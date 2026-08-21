@@ -6,6 +6,7 @@ import { CanvasView } from './CanvasView'
 import { ToolPanel } from './ToolPanel'
 import { SignatureModal } from './SignatureModal'
 import { CommandPalette } from './CommandPalette'
+import { Icon } from '../Icon'
 
 export function Workspace({ doc, onHome }: { doc: DocApi; onHome: () => void }) {
   const [toolId, setToolId] = useState('organize')
@@ -68,7 +69,8 @@ export function Workspace({ doc, onHome }: { doc: DocApi; onHome: () => void }) 
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const inField = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement
+      const inField =
+        e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement
       const mod = e.ctrlKey || e.metaKey
       if (mod && e.key.toLowerCase() === 'k') {
         e.preventDefault()
@@ -112,9 +114,10 @@ export function Workspace({ doc, onHome }: { doc: DocApi; onHome: () => void }) 
   if (!doc.active) {
     return (
       <div className="workspace-empty">
-        <p>No document open.</p>
-        <button type="button" className="btn btn-primary" onClick={onHome}>
-          Open a PDF
+        <h2>Nothing on the page</h2>
+        <p>Open a PDF and the panels fill up.</p>
+        <button type="button" className="btn btn-primary btn-lg" onClick={onHome}>
+          <Icon name="file" size={18} strokeWidth={2.1} /> Open a PDF
         </button>
       </div>
     )
@@ -124,7 +127,10 @@ export function Workspace({ doc, onHome }: { doc: DocApi; onHome: () => void }) 
     <div className="workspace">
       {doc.loadError && (
         <div className="workspace-banner" role="alert">
-          <span>⚠️ {doc.loadError}</span>
+          <span className="banner-msg">
+            <Icon name="warn" size={17} strokeWidth={2.1} />
+            {doc.loadError}
+          </span>
           <button type="button" className="btn btn-sm" onClick={onHome}>
             Open another file
           </button>

@@ -5,6 +5,7 @@ import { extractPages, insertImagePage, rebuildPdf, type Rotation } from '../../
 import { formatBytes } from '../../../lib/format'
 import type { DocApi } from '../../../hooks/useDocument'
 import { PageThumb } from '../PageThumb'
+import { Icon } from '../../Icon'
 
 export function OrganizeTool({ doc }: { doc: DocApi }) {
   const [order, setOrder] = useState<number[]>([])
@@ -141,23 +142,42 @@ export function OrganizeTool({ doc }: { doc: DocApi }) {
       </p>
 
       <div className="tool-actions wrap">
-        <button type="button" className="btn btn-sm" onClick={() => setSelected(new Set(order.map((_, i) => i)))}>
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={() => setSelected(new Set(order.map((_, i) => i)))}
+        >
           Select all
         </button>
-        <button type="button" className="btn btn-sm" onClick={() => setSelected(new Set())} disabled={!selected.size}>
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={() => setSelected(new Set())}
+          disabled={!selected.size}
+        >
           Clear
         </button>
         <button type="button" className="btn btn-sm" onClick={rotateSel} disabled={!selected.size}>
-          ⟳ Rotate 90°
+          <Icon name="rotate" size={15} strokeWidth={2.1} /> Rotate 90°
         </button>
-        <button type="button" className="btn btn-sm" onClick={duplicateSel} disabled={!selected.size}>
-          ⧉ Duplicate
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={duplicateSel}
+          disabled={!selected.size}
+        >
+          <Icon name="pages" size={15} strokeWidth={2.1} /> Duplicate
         </button>
-        <button type="button" className="btn btn-sm" onClick={insertBlank} disabled={!selected.size}>
-          ▢ Insert blank
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={insertBlank}
+          disabled={!selected.size}
+        >
+          <Icon name="file" size={15} strokeWidth={2.1} /> Insert blank
         </button>
         <button type="button" className="btn btn-sm" onClick={deleteSel} disabled={!selected.size}>
-          🗑 Delete
+          <Icon name="trash" size={15} strokeWidth={2.1} /> Delete
         </button>
         <button
           type="button"
@@ -165,7 +185,7 @@ export function OrganizeTool({ doc }: { doc: DocApi }) {
           onClick={() => imageInputRef.current?.click()}
           disabled={selected.size === 0}
         >
-          🖼 Insert image
+          <Icon name="image" size={15} strokeWidth={2.1} /> Insert image
         </button>
         <input
           ref={imageInputRef}
@@ -202,10 +222,20 @@ export function OrganizeTool({ doc }: { doc: DocApi }) {
       </div>
 
       <div className="tool-actions">
-        <button type="button" className="btn btn-sm" onClick={() => void extractSel()} disabled={!selected.size}>
-          📤 Extract selected
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={() => void extractSel()}
+          disabled={!selected.size}
+        >
+          <Icon name="upload" size={15} strokeWidth={2.1} /> Extract selected
         </button>
-        <button type="button" className="btn btn-primary" onClick={() => void apply()} disabled={busy}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => void apply()}
+          disabled={busy}
+        >
           {busy ? 'Applying…' : 'Apply changes'}
         </button>
       </div>
@@ -213,7 +243,8 @@ export function OrganizeTool({ doc }: { doc: DocApi }) {
       {msg && <p className="msg ok">{msg}</p>}
       {doc.active && (
         <p className="tool-hint">
-          Result: {order.length} page{order.length > 1 ? 's' : ''} · {formatBytes(doc.active.bytes.byteLength)}
+          Result: {order.length} page{order.length > 1 ? 's' : ''} ·{' '}
+          {formatBytes(doc.active.bytes.byteLength)}
         </p>
       )}
     </div>

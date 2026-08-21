@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
-import { annotationsToText, deleteAnnotation, listAnnotations, type AnnotInfo } from '../../../lib/annots'
+import {
+  annotationsToText,
+  deleteAnnotation,
+  listAnnotations,
+  type AnnotInfo,
+} from '../../../lib/annots'
 import { downloadBlob } from '../../../lib/download'
 import type { DocApi } from '../../../hooks/useDocument'
+import { Icon } from '../../Icon'
 
 export function AnnotsTool({ doc }: { doc: DocApi }) {
   const [annots, setAnnots] = useState<AnnotInfo[]>([])
@@ -51,7 +57,9 @@ export function AnnotsTool({ doc }: { doc: DocApi }) {
     <div className="tool">
       <h3>Annotations</h3>
       <p className="tool-hint">
-        {annots.length > 0 ? `${annots.length} annotation(s) in this document.` : 'List of highlights, notes and shapes.'}
+        {annots.length > 0
+          ? `${annots.length} annotation(s) in this document.`
+          : 'List of highlights, notes and shapes.'}
       </p>
 
       <div className="merge-list">
@@ -61,8 +69,13 @@ export function AnnotsTool({ doc }: { doc: DocApi }) {
               P{a.page} · {a.type}
               {a.contents ? ` · ${a.contents.slice(0, 40)}` : ''}
             </span>
-            <button type="button" className="btn btn-sm" aria-label={`Delete annotation on page ${a.page}`} onClick={() => void remove(a)}>
-              🗑
+            <button
+              type="button"
+              className="btn btn-sm"
+              aria-label={`Delete annotation on page ${a.page}`}
+              onClick={() => void remove(a)}
+            >
+              <Icon name="trash" size={14} strokeWidth={2.1} />
             </button>
           </div>
         ))}
@@ -72,8 +85,13 @@ export function AnnotsTool({ doc }: { doc: DocApi }) {
         <button type="button" className="btn" onClick={() => void refresh()} disabled={busy}>
           Refresh
         </button>
-        <button type="button" className="btn btn-sm" onClick={exportSummary} disabled={annots.length === 0}>
-          ⬇️ Export summary
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={exportSummary}
+          disabled={annots.length === 0}
+        >
+          <Icon name="download" size={15} strokeWidth={2.1} /> Export summary
         </button>
       </div>
       {msg && <p className={msg.includes('failed') ? 'msg error' : 'msg ok'}>{msg}</p>}

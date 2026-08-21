@@ -3,6 +3,7 @@ import { renderPageToCanvas } from '../../lib/pdf'
 import { downloadBytes } from '../../lib/download'
 import type { DocApi } from '../../hooks/useDocument'
 import { nextId, type EditElement, type EditSession, type MarkType } from '../../lib/editTypes'
+import { Icon } from '../Icon'
 
 interface Draft {
   kind: 'mark' | 'shape' | 'line' | 'ink'
@@ -142,7 +143,7 @@ export function CanvasView({
     }
     // Existing-text editing: outline the detected text lines.
     if (edit.editMode === 'editText' && edit.textItems) {
-      ctx.strokeStyle = 'rgba(67, 56, 202, 0.5)'
+      ctx.strokeStyle = 'rgba(43, 68, 255, 0.55)'
       ctx.lineWidth = 1
       ctx.setLineDash([3, 3])
       for (const it of edit.textItems) {
@@ -151,7 +152,18 @@ export function CanvasView({
       ctx.setLineDash([])
     }
     if (draft) drawDraft(ctx, draft, edit.editColor, edit.editWidth)
-  }, [edit.elements, edit.selection, draft, pageSize, zoom, currentPage, edit.editColor, edit.editWidth, edit.editMode, edit.textItems])
+  }, [
+    edit.elements,
+    edit.selection,
+    draft,
+    pageSize,
+    zoom,
+    currentPage,
+    edit.editColor,
+    edit.editWidth,
+    edit.editMode,
+    edit.textItems,
+  ])
 
   const toPt = (e: ReactPointerEvent): { x: number; y: number } => {
     const rect = overlayRef.current!.getBoundingClientRect()
@@ -223,7 +235,7 @@ export function CanvasView({
           y: p.y,
           text: '',
           size: edit.editSize,
-          color: '#1a2033',
+          color: '#17141b',
           align: 'left',
         })
         break
@@ -268,20 +280,52 @@ export function CanvasView({
       case 'underline':
       case 'strikethrough':
       case 'squiggly':
-        draftRef.current = { kind: 'mark', markType: edit.editMode, x0: p.x, y0: p.y, x: p.x, y: p.y, points: [] }
+        draftRef.current = {
+          kind: 'mark',
+          markType: edit.editMode,
+          x0: p.x,
+          y0: p.y,
+          x: p.x,
+          y: p.y,
+          points: [],
+        }
         setDraft(draftRef.current)
         break
       case 'rect':
       case 'ellipse':
-        draftRef.current = { kind: 'shape', markType: 'highlight', x0: p.x, y0: p.y, x: p.x, y: p.y, points: [] }
+        draftRef.current = {
+          kind: 'shape',
+          markType: 'highlight',
+          x0: p.x,
+          y0: p.y,
+          x: p.x,
+          y: p.y,
+          points: [],
+        }
         setDraft(draftRef.current)
         break
       case 'line':
-        draftRef.current = { kind: 'line', markType: 'highlight', x0: p.x, y0: p.y, x: p.x, y: p.y, points: [] }
+        draftRef.current = {
+          kind: 'line',
+          markType: 'highlight',
+          x0: p.x,
+          y0: p.y,
+          x: p.x,
+          y: p.y,
+          points: [],
+        }
         setDraft(draftRef.current)
         break
       case 'pen':
-        draftRef.current = { kind: 'ink', markType: 'highlight', x0: p.x, y0: p.y, x: p.x, y: p.y, points: [p.x, p.y] }
+        draftRef.current = {
+          kind: 'ink',
+          markType: 'highlight',
+          x0: p.x,
+          y0: p.y,
+          x: p.x,
+          y: p.y,
+          points: [p.x, p.y],
+        }
         setDraft(draftRef.current)
         break
     }
@@ -294,8 +338,10 @@ export function CanvasView({
       edit.setElements((prev) =>
         prev.map((el) => {
           if (el.id !== drag.id) return el
-          const anchorX = el.kind === 'line' ? el.x1 : el.kind === 'ink' ? (el.points[0] ?? 0) : el.x
-          const anchorY = el.kind === 'line' ? el.y1 : el.kind === 'ink' ? (el.points[1] ?? 0) : el.y
+          const anchorX =
+            el.kind === 'line' ? el.x1 : el.kind === 'ink' ? (el.points[0] ?? 0) : el.x
+          const anchorY =
+            el.kind === 'line' ? el.y1 : el.kind === 'ink' ? (el.points[1] ?? 0) : el.y
           const dx = p.x - drag.dx - anchorX
           const dy = p.y - drag.dy - anchorY
           if (el.kind === 'line') {
@@ -315,7 +361,10 @@ export function CanvasView({
       ...draftRef.current,
       x: p.x,
       y: p.y,
-      points: draftRef.current.kind === 'ink' ? [...draftRef.current.points, p.x, p.y] : draftRef.current.points,
+      points:
+        draftRef.current.kind === 'ink'
+          ? [...draftRef.current.points, p.x, p.y]
+          : draftRef.current.points,
     }
     draftRef.current = next
     setDraft(next)
@@ -389,8 +438,8 @@ export function CanvasView({
     return (
       <section className="canvas-pane canvas-empty" aria-label="Document">
         <p>No document open.</p>
-        <button type="button" className="btn btn-primary" onClick={onHome}>
-          Open a PDF
+        <button type="button" className="btn btn-primary btn-lg" onClick={onHome}>
+          <Icon name="file" size={18} strokeWidth={2.1} /> Open a PDF
         </button>
       </section>
     )
@@ -399,8 +448,14 @@ export function CanvasView({
   return (
     <section className="canvas-pane" aria-label="Document">
       <div className="canvas-toolbar">
-        <button type="button" className="btn btn-sm" onClick={onHome} title="Back to start">
-          🏠 New
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={onHome}
+          title="Back to start"
+          aria-label="Back to start"
+        >
+          <Icon name="home" size={15} strokeWidth={2.1} />
         </button>
         <span className="toolbar-sep" />
         <button
@@ -409,8 +464,9 @@ export function CanvasView({
           onClick={() => doc.undo()}
           disabled={!doc.canUndo}
           title="Undo (Ctrl+Z)"
+          aria-label="Undo"
         >
-          ↩️ Undo
+          <Icon name="undo" size={15} strokeWidth={2.1} />
         </button>
         <button
           type="button"
@@ -418,8 +474,9 @@ export function CanvasView({
           onClick={() => doc.redo()}
           disabled={!doc.canRedo}
           title="Redo (Ctrl+Shift+Z)"
+          aria-label="Redo"
         >
-          ↪️ Redo
+          <Icon name="redo" size={15} strokeWidth={2.1} />
         </button>
         <span className="toolbar-sep" />
         <button
@@ -429,7 +486,7 @@ export function CanvasView({
           disabled={currentPage <= 1}
           aria-label="Previous page"
         >
-          ‹
+          <Icon name="chevronLeft" size={15} strokeWidth={2.4} />
         </button>
         <span className="page-indicator">
           {currentPage} / {pageCount}
@@ -441,7 +498,7 @@ export function CanvasView({
           disabled={currentPage >= pageCount}
           aria-label="Next page"
         >
-          ›
+          <Icon name="chevronRight" size={15} strokeWidth={2.4} />
         </button>
         <span className="toolbar-sep" />
         <button
@@ -450,7 +507,7 @@ export function CanvasView({
           onClick={() => doc.setZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))}
           aria-label="Zoom out"
         >
-          −
+          <Icon name="zoomOut" size={15} strokeWidth={2.1} />
         </button>
         <span className="page-indicator">{Math.round(zoom * 100)}%</span>
         <button
@@ -459,13 +516,25 @@ export function CanvasView({
           onClick={() => doc.setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
           aria-label="Zoom in"
         >
-          +
+          <Icon name="zoomIn" size={15} strokeWidth={2.1} />
         </button>
-        <button type="button" className="btn btn-sm" onClick={() => doc.setZoom(1)}>
-          Fit
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={() => doc.setZoom(1)}
+          title="Reset zoom"
+          aria-label="Reset zoom"
+        >
+          <Icon name="fit" size={15} strokeWidth={2.1} />
         </button>
-        <button type="button" className="btn btn-sm" onClick={() => edit.setPaletteOpen(true)} title="Command palette (Ctrl+K)">
-          ⌘K
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={() => edit.setPaletteOpen(true)}
+          title="Command palette (Ctrl+K)"
+          aria-label="Command palette"
+        >
+          <Icon name="command" size={15} strokeWidth={2} />
         </button>
         <div className="help-wrap">
           <button
@@ -474,8 +543,9 @@ export function CanvasView({
             onClick={() => setHelpOpen((o) => !o)}
             aria-expanded={helpOpen}
             title="Shortcuts"
+            aria-label="Keyboard shortcuts"
           >
-            ?
+            <Icon name="help" size={15} strokeWidth={2.1} />
           </button>
           {helpOpen && (
             <div className="help-popover">
@@ -503,17 +573,20 @@ export function CanvasView({
             </div>
           )}
         </div>
-        <span className="toolbar-sep" />
+        <span className="toolbar-spacer" />
         <button
           type="button"
           className="btn btn-sm btn-primary"
           onClick={() => downloadBytes(active.bytes, active.name)}
         >
-          ⬇️ Download
+          <Icon name="download" size={15} strokeWidth={2.1} /> Download
         </button>
       </div>
       <div className="canvas-scroll">
-        <div className="page-wrap" style={{ width: pageSize?.width ?? 0, height: pageSize?.height ?? 0 }}>
+        <div
+          className="page-wrap"
+          style={{ width: pageSize?.width ?? 0, height: pageSize?.height ?? 0 }}
+        >
           <canvas ref={canvasRef} className="page-canvas" />
           <canvas
             ref={overlayRef}
@@ -530,7 +603,11 @@ export function CanvasView({
   )
 }
 
-function distToSegment(p: { x: number; y: number }, a: { x: number; y: number }, b: { x: number; y: number }): number {
+function distToSegment(
+  p: { x: number; y: number },
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+): number {
   const dx = b.x - a.x
   const dy = b.y - a.y
   const len2 = dx * dx + dy * dy
@@ -593,10 +670,33 @@ function drawElement(ctx: CanvasRenderingContext2D, el: EditElement, selected: b
       }
       break
     }
-    case 'note':
-      ctx.font = '18px sans-serif'
-      ctx.fillText('📝', el.x - 2, el.y + 15)
+    case 'note': {
+      // Hand-drawn sticky note with a turned-up corner.
+      ctx.fillStyle = '#ffc803'
+      ctx.strokeStyle = '#17141b'
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.moveTo(el.x, el.y)
+      ctx.lineTo(el.x + 18, el.y)
+      ctx.lineTo(el.x + 18, el.y + 12)
+      ctx.lineTo(el.x + 12, el.y + 18)
+      ctx.lineTo(el.x, el.y + 18)
+      ctx.closePath()
+      ctx.fill()
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(el.x + 18, el.y + 12)
+      ctx.lineTo(el.x + 12, el.y + 12)
+      ctx.lineTo(el.x + 12, el.y + 18)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(el.x + 4, el.y + 6)
+      ctx.lineTo(el.x + 14, el.y + 6)
+      ctx.moveTo(el.x + 4, el.y + 9.5)
+      ctx.lineTo(el.x + 11, el.y + 9.5)
+      ctx.stroke()
       break
+    }
     case 'shape':
       ctx.strokeStyle = el.color
       ctx.lineWidth = el.width
@@ -638,17 +738,17 @@ function drawElement(ctx: CanvasRenderingContext2D, el: EditElement, selected: b
   }
   if (selected) {
     const b = bboxOf(el)
-    ctx.strokeStyle = '#4338ca'
+    ctx.strokeStyle = '#2b44ff'
     ctx.lineWidth = 1
     ctx.setLineDash([4, 3])
     ctx.strokeRect(b.x - 3, b.y - 3, b.w + 6, b.h + 6)
     ctx.setLineDash([])
-    ctx.fillStyle = '#4338ca'
+    ctx.fillStyle = '#2b44ff'
     ctx.beginPath()
     ctx.arc(b.x + b.w + 3, b.y - 3, 5, 0, Math.PI * 2)
     ctx.fill()
     ctx.fillStyle = '#fff'
-    ctx.font = '9px sans-serif'
+    ctx.font = 'bold 9px sans-serif'
     ctx.textAlign = 'center'
     ctx.fillText('×', b.x + b.w + 3, b.y - 0.5)
     ctx.textAlign = 'start'
@@ -656,7 +756,12 @@ function drawElement(ctx: CanvasRenderingContext2D, el: EditElement, selected: b
   ctx.restore()
 }
 
-function drawDraft(ctx: CanvasRenderingContext2D, draft: Draft, color: string, width: number): void {
+function drawDraft(
+  ctx: CanvasRenderingContext2D,
+  draft: Draft,
+  color: string,
+  width: number,
+): void {
   const x = Math.min(draft.x0, draft.x)
   const y = Math.min(draft.y0, draft.y)
   const w = Math.abs(draft.x - draft.x0)

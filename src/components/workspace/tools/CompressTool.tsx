@@ -8,7 +8,12 @@ type Preset = 'light' | 'recommended' | 'max'
 
 const PRESETS: Array<{ id: Preset; label: string; desc: string; raster: boolean }> = [
   { id: 'light', label: 'Light', desc: 'Fast — keeps text & quality, small gains', raster: false },
-  { id: 'recommended', label: 'Recommended', desc: 'Rebuilds pages as images — best for scans', raster: true },
+  {
+    id: 'recommended',
+    label: 'Recommended',
+    desc: 'Rebuilds pages as images — best for scans',
+    raster: true,
+  },
   { id: 'max', label: 'Max', desc: 'Smallest size — lower image quality', raster: true },
 ]
 
@@ -78,7 +83,7 @@ export function CompressTool({ doc }: { doc: DocApi }) {
       setResult({ bytes: best, before, after: best.byteLength, rasterized })
       setTargetMsg(
         best.byteLength <= target
-          ? `Under ${targetMb} MB ✓`
+          ? `Under ${targetMb} MB`
           : `Could not get under ${targetMb} MB — this is the smallest achievable.`,
       )
     } finally {
@@ -92,7 +97,10 @@ export function CompressTool({ doc }: { doc: DocApi }) {
     setTargetMsg('Applied — the active document is now the compressed version.')
   }
 
-  const pct = result && result.before > 0 ? Math.round(((result.before - result.after) / result.before) * 100) : 0
+  const pct =
+    result && result.before > 0
+      ? Math.round(((result.before - result.after) / result.before) * 100)
+      : 0
 
   return (
     <div className="tool">
@@ -102,7 +110,12 @@ export function CompressTool({ doc }: { doc: DocApi }) {
       <div className="seg-list">
         {PRESETS.map((p) => (
           <label key={p.id} className={`preset${preset === p.id ? ' active' : ''}`}>
-            <input type="radio" name="preset" checked={preset === p.id} onChange={() => setPreset(p.id)} />
+            <input
+              type="radio"
+              name="preset"
+              checked={preset === p.id}
+              onChange={() => setPreset(p.id)}
+            />
             <span className="preset-label">{p.label}</span>
             <span className="preset-desc">{p.desc}</span>
           </label>
@@ -114,11 +127,12 @@ export function CompressTool({ doc }: { doc: DocApi }) {
       {result && (
         <div className="compress-result">
           <p className="msg ok">
-            {formatBytes(result.before)} → {formatBytes(result.after)} ({pct > 0 ? `−${pct}%` : 'no change'})
+            {formatBytes(result.before)} → {formatBytes(result.after)} (
+            {pct > 0 ? `−${pct}%` : 'no change'})
           </p>
           {result.rasterized && (
             <p className="tool-hint">
-              ⚠️ This preset converts pages to images — text becomes non-selectable (best for scans).
+              This preset converts pages to images — text becomes non-selectable (best for scans).
             </p>
           )}
           <div className="tool-actions">
@@ -142,7 +156,12 @@ export function CompressTool({ doc }: { doc: DocApi }) {
             aria-label="Target size in MB"
           />
           <span className="tool-hint">MB</span>
-          <button type="button" className="btn" onClick={() => void compressToTarget()} disabled={targetBusy}>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => void compressToTarget()}
+            disabled={targetBusy}
+          >
             {targetBusy ? 'Working…' : 'Compress under target'}
           </button>
         </div>

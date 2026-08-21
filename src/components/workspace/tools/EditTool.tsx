@@ -4,24 +4,30 @@ import { applyTextEdit } from '../../../lib/textEdit'
 import { getPageSize } from '../../../lib/operations'
 import { extractPageImages, getPageTextItems, imageFileToPngBytes } from '../../../lib/pdf'
 import { downloadBlob } from '../../../lib/download'
-import { nextId, type EditElement, type EditSession, type EditToolMode } from '../../../lib/editTypes'
+import {
+  nextId,
+  type EditElement,
+  type EditSession,
+  type EditToolMode,
+} from '../../../lib/editTypes'
 import type { DocApi } from '../../../hooks/useDocument'
+import { Icon, type IconName } from '../../Icon'
 
-const MODES: Array<{ id: EditToolMode; label: string }> = [
-  { id: 'select', label: '✋ Select' },
-  { id: 'text', label: 'T Text' },
-  { id: 'editText', label: '✎ Edit text' },
-  { id: 'highlight', label: '🖍 Highlight' },
-  { id: 'underline', label: '〰 Underline' },
-  { id: 'strikethrough', label: '␣ Strike' },
-  { id: 'squiggly', label: '~ Squiggle' },
-  { id: 'note', label: '📝 Note' },
-  { id: 'rect', label: '▭ Rect' },
-  { id: 'ellipse', label: '◯ Ellipse' },
-  { id: 'line', label: '➖ Line' },
-  { id: 'pen', label: '✏️ Pen' },
-  { id: 'sign', label: '✍️ Sign' },
-  { id: 'image', label: '🖼 Image' },
+const MODES: Array<{ id: EditToolMode; label: string; icon: IconName }> = [
+  { id: 'select', label: 'Select', icon: 'cursor' },
+  { id: 'text', label: 'Text', icon: 'text' },
+  { id: 'editText', label: 'Retype', icon: 'editText' },
+  { id: 'highlight', label: 'Marker', icon: 'highlight' },
+  { id: 'underline', label: 'Underline', icon: 'underline' },
+  { id: 'strikethrough', label: 'Strike', icon: 'strike' },
+  { id: 'squiggly', label: 'Squiggle', icon: 'squiggly' },
+  { id: 'note', label: 'Note', icon: 'note' },
+  { id: 'rect', label: 'Box', icon: 'square' },
+  { id: 'ellipse', label: 'Oval', icon: 'circle' },
+  { id: 'line', label: 'Arrow', icon: 'line' },
+  { id: 'pen', label: 'Pen', icon: 'pen' },
+  { id: 'sign', label: 'Sign', icon: 'sign' },
+  { id: 'image', label: 'Image', icon: 'image' },
 ]
 
 const MARK_MODES = new Set<EditToolMode>(['highlight', 'underline', 'strikethrough', 'squiggly'])
@@ -82,7 +88,9 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
 
   const updateSelected = (patch: Partial<EditElement>) => {
     if (!edit.selection) return
-    edit.setElements((prev) => prev.map((el) => (el.id === edit.selection ? ({ ...el, ...patch } as EditElement) : el)))
+    edit.setElements((prev) =>
+      prev.map((el) => (el.id === edit.selection ? ({ ...el, ...patch } as EditElement) : el)),
+    )
   }
 
   const applyTextEditTarget = async () => {
@@ -91,7 +99,13 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
     setMsg(undefined)
     try {
       const size = await getPageSize(doc.active.bytes, edit.editTarget.page)
-      const result = await applyTextEdit(doc.active.bytes, edit.editTarget.page, edit.editTarget.item, newText, size)
+      const result = await applyTextEdit(
+        doc.active.bytes,
+        edit.editTarget.page,
+        edit.editTarget.item,
+        newText,
+        size,
+      )
       doc.mutate(result)
       edit.setEditTarget(null)
       edit.setTextItems(null)
@@ -149,8 +163,8 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
     <div className="tool">
       <h3>Edit page</h3>
       <p className="tool-hint">
-        {edit.elements.length} element{edit.elements.length === 1 ? '' : 's'} on the canvas. Click the page to add, drag to
-        move, then Apply.
+        {edit.elements.length} element{edit.elements.length === 1 ? '' : 's'} on the canvas. Click
+        the page to add, drag to move, then Apply.
       </p>
 
       <div className="mode-grid">
@@ -162,6 +176,7 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
             onClick={() => edit.setEditMode(m.id)}
             title={m.label}
           >
+            <Icon name={m.icon} size={18} strokeWidth={1.9} />
             {m.label}
           </button>
         ))}
@@ -218,7 +233,8 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
           </p>
           <div className="tool-actions">
             <button type="button" className="btn btn-sm" onClick={edit.openSignatureModal}>
-              {edit.signature ? 'Change signature' : '✍️ Create signature'}
+              <Icon name="sign" size={15} strokeWidth={2.1} />
+              {edit.signature ? 'Change signature' : 'Create signature'}
             </button>
             {edit.signature && (
               <button type="button" className="btn btn-sm" onClick={() => edit.setSignature(null)}>
@@ -229,7 +245,7 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
           {edit.elements.some((el) => el.kind === 'signature') && (
             <div className="tool-actions">
               <button type="button" className="btn btn-sm" onClick={placeSignatureOnAllPages}>
-                ⧉ Place on all pages
+                <Icon name="pages" size={15} strokeWidth={2.1} /> Place on all pages
               </button>
             </div>
           )}
@@ -256,18 +272,31 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
                 e.currentTarget.value = ''
               }}
             />
-            <button type="button" className="btn btn-sm" onClick={() => imageInputRef.current?.click()}>
-              🖼 Choose image
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => imageInputRef.current?.click()}
+            >
+              <Icon name="image" size={15} strokeWidth={2.1} /> Choose image
             </button>
             {edit.pendingImage && (
-              <button type="button" className="btn btn-sm" onClick={() => edit.setPendingImage(null)}>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => edit.setPendingImage(null)}
+              >
                 Clear
               </button>
             )}
           </div>
           <div className="tool-actions">
-            <button type="button" className="btn btn-sm" onClick={() => void extractImages()} disabled={busy}>
-              📤 Extract images on this page
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => void extractImages()}
+              disabled={busy}
+            >
+              <Icon name="upload" size={15} strokeWidth={2.1} /> Extract images on this page
             </button>
           </div>
         </div>
@@ -294,7 +323,9 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
               <select
                 className="input"
                 value={selected.align}
-                onChange={(e) => updateSelected({ align: e.target.value as 'left' | 'center' | 'right' })}
+                onChange={(e) =>
+                  updateSelected({ align: e.target.value as 'left' | 'center' | 'right' })
+                }
               >
                 <option value="left">Left</option>
                 <option value="center">Center</option>
@@ -309,7 +340,9 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
                 <input
                   type="color"
                   value={selected.color}
-                  onChange={(e) => updateSelected({ color: e.target.value } as Partial<EditElement>)}
+                  onChange={(e) =>
+                    updateSelected({ color: e.target.value } as Partial<EditElement>)
+                  }
                 />
               </label>
             </div>
@@ -323,7 +356,7 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
                 edit.setSelection(null)
               }}
             >
-              🗑 Delete
+              <Icon name="trash" size={15} strokeWidth={2.1} /> Delete
             </button>
           </div>
         </div>
@@ -333,12 +366,15 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
         <div className="seg">
           {edit.textItems !== null && edit.textItems.length === 0 && (
             <p className="msg error">
-              No text layer found on this page — it may be a scan. Use OCR or the Add Text tool instead.
+              No text layer found on this page — it may be a scan. Use OCR or the Add Text tool
+              instead.
             </p>
           )}
           {edit.editTarget ? (
             <>
-              <p className="tool-hint">Replace text on page {edit.editTarget.page} (original is removed).</p>
+              <p className="tool-hint">
+                Replace text on page {edit.editTarget.page} (original is removed).
+              </p>
               <label className="field">
                 New text
                 <textarea
@@ -350,7 +386,11 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
                 />
               </label>
               <div className="tool-actions">
-                <button type="button" className="btn btn-sm" onClick={() => edit.setEditTarget(null)}>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  onClick={() => edit.setEditTarget(null)}
+                >
                   Cancel
                 </button>
                 <button
@@ -381,7 +421,12 @@ export function EditTool({ doc, edit }: { doc: DocApi; edit: EditSession }) {
         >
           Clear all
         </button>
-        <button type="button" className="btn btn-primary" onClick={() => void apply()} disabled={busy || edit.elements.length === 0}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => void apply()}
+          disabled={busy || edit.elements.length === 0}
+        >
           {busy ? 'Applying…' : 'Apply to PDF'}
         </button>
       </div>

@@ -3,6 +3,7 @@ import { imageFileToPngBytes } from '../../../lib/pdf'
 import { imagesToPdf, mergePdfs } from '../../../lib/operations'
 import { formatBytes } from '../../../lib/format'
 import type { DocApi } from '../../../hooks/useDocument'
+import { Icon } from '../../Icon'
 
 interface MergeItem {
   id: string
@@ -85,15 +86,17 @@ export function MergeTool({ doc }: { doc: DocApi }) {
         if (!r) throw new Error(`Invalid page range for "${i.name}" — use e.g. "1-3".`)
         return r
       })
-      const result = await mergePdfs([...pdfItems.map((i) => i.bytes), ...imagePdfs], [
-        ...fileRanges,
-        ...imageItems.map(() => null),
-      ])
+      const result = await mergePdfs(
+        [...pdfItems.map((i) => i.bytes), ...imagePdfs],
+        [...fileRanges, ...imageItems.map(() => null)],
+      )
       doc.mutate(result, 'merged.pdf')
       setDone(true)
     } catch (err) {
       console.error('merge failed', err)
-      setError(err instanceof Error ? err.message : 'Merge failed — one of the files could not be read.')
+      setError(
+        err instanceof Error ? err.message : 'Merge failed — one of the files could not be read.',
+      )
     } finally {
       setBusy(false)
     }
@@ -102,7 +105,9 @@ export function MergeTool({ doc }: { doc: DocApi }) {
   return (
     <div className="tool">
       <h3>Merge PDFs</h3>
-      <p className="tool-hint">Combine files into one PDF. Drag rows to reorder. Images are supported.</p>
+      <p className="tool-hint">
+        Combine files into one PDF. Drag rows to reorder. Images are supported.
+      </p>
 
       <div className="merge-list">
         {items.map((item, idx) => (
@@ -115,7 +120,7 @@ export function MergeTool({ doc }: { doc: DocApi }) {
             onDrop={(e) => onDrop(e, idx)}
           >
             <span className="merge-grip" aria-hidden="true">
-              ⠿
+              <Icon name="grip" size={16} strokeWidth={2.6} />
             </span>
             <span className="merge-name" title={item.name}>
               {item.name}
@@ -144,7 +149,7 @@ export function MergeTool({ doc }: { doc: DocApi }) {
                 })
               }}
             >
-              ×
+              <Icon name="close" size={13} strokeWidth={2.4} />
             </button>
           </div>
         ))}

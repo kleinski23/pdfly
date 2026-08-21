@@ -4,6 +4,7 @@ import { imageFileToPngBytes, pdfToImages } from '../../../lib/pdf'
 import { imagesToPdf, type PageSizeMode } from '../../../lib/operations'
 import { formatBytes } from '../../../lib/format'
 import type { DocApi } from '../../../hooks/useDocument'
+import { Icon } from '../../Icon'
 
 interface ImageItem {
   id: string
@@ -98,11 +99,21 @@ export function ConvertTool({ doc }: { doc: DocApi }) {
       <h3>Convert</h3>
       <div className="seg-list">
         <label className={`preset${tab === 'toPdf' ? ' active' : ''}`}>
-          <input type="radio" name="tab" checked={tab === 'toPdf'} onChange={() => setTab('toPdf')} />
+          <input
+            type="radio"
+            name="tab"
+            checked={tab === 'toPdf'}
+            onChange={() => setTab('toPdf')}
+          />
           <span className="preset-label">Images → PDF</span>
         </label>
         <label className={`preset${tab === 'toImages' ? ' active' : ''}`}>
-          <input type="radio" name="tab" checked={tab === 'toImages'} onChange={() => setTab('toImages')} />
+          <input
+            type="radio"
+            name="tab"
+            checked={tab === 'toImages'}
+            onChange={() => setTab('toImages')}
+          />
           <span className="preset-label">PDF → Images</span>
         </label>
       </div>
@@ -121,17 +132,33 @@ export function ConvertTool({ doc }: { doc: DocApi }) {
                   type="button"
                   className="btn btn-sm"
                   aria-label={`Move ${img.name} up`}
-                  onClick={() => setImgs((prev) => (idx === 0 ? prev : prev.map((x, i) => (i === idx ? prev[idx - 1] : i === idx - 1 ? prev[idx] : x))))}
+                  onClick={() =>
+                    setImgs((prev) =>
+                      idx === 0
+                        ? prev
+                        : prev.map((x, i) =>
+                            i === idx ? prev[idx - 1] : i === idx - 1 ? prev[idx] : x,
+                          ),
+                    )
+                  }
                 >
-                  ↑
+                  <Icon name="chevronUp" size={13} strokeWidth={2.4} />
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm"
                   aria-label={`Move ${img.name} down`}
-                  onClick={() => setImgs((prev) => (idx === prev.length - 1 ? prev : prev.map((x, i) => (i === idx ? prev[idx + 1] : i === idx + 1 ? prev[idx] : x))))}
+                  onClick={() =>
+                    setImgs((prev) =>
+                      idx === prev.length - 1
+                        ? prev
+                        : prev.map((x, i) =>
+                            i === idx ? prev[idx + 1] : i === idx + 1 ? prev[idx] : x,
+                          ),
+                    )
+                  }
                 >
-                  ↓
+                  <Icon name="chevronDown" size={13} strokeWidth={2.4} />
                 </button>
                 <button
                   type="button"
@@ -139,7 +166,7 @@ export function ConvertTool({ doc }: { doc: DocApi }) {
                   aria-label={`Remove ${img.name}`}
                   onClick={() => setImgs((prev) => prev.filter((_, i) => i !== idx))}
                 >
-                  ×
+                  <Icon name="close" size={13} strokeWidth={2.4} />
                 </button>
               </div>
             ))}
@@ -169,18 +196,29 @@ export function ConvertTool({ doc }: { doc: DocApi }) {
               <option value="a4">A4</option>
               <option value="letter">Letter</option>
             </select>
-            <button type="button" className="btn btn-primary" onClick={() => void toPdf()} disabled={!imgs.length || busy}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => void toPdf()}
+              disabled={!imgs.length || busy}
+            >
               {busy ? 'Converting…' : 'Create PDF'}
             </button>
           </div>
         </>
       ) : (
         <>
-          <p className="tool-hint">Export the current document ({doc.pageCount} pages) as images.</p>
+          <p className="tool-hint">
+            Export the current document ({doc.pageCount} pages) as images.
+          </p>
           <div className="field-grid">
             <label className="field">
               Format
-              <select className="input" value={format} onChange={(e) => setFormat(e.target.value as 'jpeg' | 'png')}>
+              <select
+                className="input"
+                value={format}
+                onChange={(e) => setFormat(e.target.value as 'jpeg' | 'png')}
+              >
                 <option value="jpeg">JPG</option>
                 <option value="png">PNG</option>
               </select>
@@ -205,7 +243,12 @@ export function ConvertTool({ doc }: { doc: DocApi }) {
             />
           </label>
           <div className="tool-actions">
-            <button type="button" className="btn btn-primary" onClick={() => void toImages()} disabled={busy}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => void toImages()}
+              disabled={busy}
+            >
               {busy ? 'Exporting…' : 'Export images'}
             </button>
           </div>
@@ -218,11 +261,14 @@ export function ConvertTool({ doc }: { doc: DocApi }) {
                 onClick={() => {
                   const base = doc.active?.name.replace(/\.pdf$/i, '') ?? 'document'
                   outImages.forEach((r) =>
-                    downloadBlob(r.blob, `${base}-page-${r.page}.${format === 'png' ? 'png' : 'jpg'}`),
+                    downloadBlob(
+                      r.blob,
+                      `${base}-page-${r.page}.${format === 'png' ? 'png' : 'jpg'}`,
+                    ),
                   )
                 }}
               >
-                ⬇️ Download all
+                <Icon name="download" size={15} strokeWidth={2.1} /> Download all
               </button>
             </div>
           )}

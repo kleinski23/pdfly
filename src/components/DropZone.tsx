@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { formatBytes } from '../lib/format'
+import { Icon } from './Icon'
 
 interface PickedFile {
   name: string
@@ -82,17 +83,20 @@ export function DropZone({ onFiles }: { onFiles: (files: File[]) => void }) {
         }}
       />
       <div className="dropzone-icon" aria-hidden="true">
-        📄
+        <Icon name="file" size={30} strokeWidth={2} />
       </div>
       <p>
         <strong>Drop your PDF here</strong>, or click to browse.
       </p>
-      <p className="dropzone-note">Paste (Ctrl+V) works too. Images welcome for merge &amp; convert.</p>
+      <p className="dropzone-note">
+        Paste (Ctrl+V) works too. Images welcome for merge &amp; convert.
+      </p>
 
       {files.length > 0 && (
         <ul className="file-list">
           {files.map((f) => (
             <li key={f.name}>
+              <Icon name="file" size={16} strokeWidth={2.1} />
               {f.name} · {formatBytes(f.size)}
             </li>
           ))}
@@ -106,7 +110,10 @@ export function DropZone({ onFiles }: { onFiles: (files: File[]) => void }) {
       )}
       {warning && <p className="msg">{warning}</p>}
 
-      <span className="coming-soon">🔒 Files never leave your device</span>
+      <span className="coming-soon">
+        <Icon name="lock" size={14} strokeWidth={2.2} />
+        Files never leave your device
+      </span>
     </div>
   )
 }

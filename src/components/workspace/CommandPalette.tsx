@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { downloadBytes } from '../../lib/download'
 import type { DocApi } from '../../hooks/useDocument'
 import type { EditSession, EditToolMode } from '../../lib/editTypes'
+import { Icon, type IconName } from '../Icon'
 
 export function CommandPalette({
   doc,
@@ -18,10 +19,11 @@ export function CommandPalette({
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const list: Array<{ id: string; label: string; run: () => void }> = [
+    const list: Array<{ id: string; label: string; icon: IconName; run: () => void }> = [
       ...editTools.map((t) => ({
         id: `mode:${t.id}`,
-        label: `${t.icon} ${t.label}`,
+        label: t.label,
+        icon: t.icon,
         run: () => {
           edit.setToolId('edit')
           edit.setEditMode(t.id)
@@ -30,7 +32,8 @@ export function CommandPalette({
       })),
       ...panelTools.map((t) => ({
         id: `tool:${t.id}`,
-        label: `${t.icon} ${t.label} tool`,
+        label: `${t.label} tool`,
+        icon: t.icon,
         run: () => {
           edit.setToolId(t.id)
           onClose()
@@ -38,7 +41,8 @@ export function CommandPalette({
       })),
       ...Array.from({ length: doc.pageCount }, (_, i) => i + 1).map((p) => ({
         id: `page:${p}`,
-        label: `📄 Go to page ${p}`,
+        label: `Go to page ${p}`,
+        icon: 'file' as IconName,
         run: () => {
           doc.setCurrentPage(p)
           onClose()
@@ -46,7 +50,8 @@ export function CommandPalette({
       })),
       {
         id: 'undo',
-        label: '↩️ Undo',
+        label: 'Undo',
+        icon: 'undo',
         run: () => {
           doc.undo()
           onClose()
@@ -54,7 +59,8 @@ export function CommandPalette({
       },
       {
         id: 'redo',
-        label: '↪️ Redo',
+        label: 'Redo',
+        icon: 'redo',
         run: () => {
           doc.redo()
           onClose()
@@ -62,7 +68,8 @@ export function CommandPalette({
       },
       {
         id: 'download',
-        label: '⬇️ Download PDF',
+        label: 'Download PDF',
+        icon: 'download',
         run: () => {
           if (doc.active) downloadBytes(doc.active.bytes, doc.active.name)
           onClose()
@@ -80,7 +87,12 @@ export function CommandPalette({
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="palette" role="dialog" aria-label="Command palette" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="palette"
+        role="dialog"
+        aria-label="Command palette"
+        onClick={(e) => e.stopPropagation()}
+      >
         <input
           ref={inputRef}
           className="palette-input"
@@ -115,6 +127,7 @@ export function CommandPalette({
               onMouseEnter={() => setCursor(i)}
               onClick={item.run}
             >
+              <Icon name={item.icon} size={17} strokeWidth={2} />
               {item.label}
             </button>
           ))}
@@ -125,26 +138,26 @@ export function CommandPalette({
   )
 }
 
-const editTools: Array<{ id: EditToolMode; label: string; icon: string }> = [
-  { id: 'select', label: 'Select', icon: '✋' },
-  { id: 'text', label: 'Add text', icon: 'T' },
-  { id: 'editText', label: 'Edit existing text', icon: '✎' },
-  { id: 'highlight', label: 'Highlight', icon: '🖍' },
-  { id: 'note', label: 'Sticky note', icon: '📝' },
-  { id: 'sign', label: 'Sign', icon: '✍️' },
-  { id: 'pen', label: 'Freehand pen', icon: '✏️' },
+const editTools: Array<{ id: EditToolMode; label: string; icon: IconName }> = [
+  { id: 'select', label: 'Select', icon: 'cursor' },
+  { id: 'text', label: 'Add text', icon: 'text' },
+  { id: 'editText', label: 'Edit existing text', icon: 'editText' },
+  { id: 'highlight', label: 'Highlight', icon: 'highlight' },
+  { id: 'note', label: 'Sticky note', icon: 'note' },
+  { id: 'sign', label: 'Sign', icon: 'sign' },
+  { id: 'pen', label: 'Freehand pen', icon: 'pen' },
 ]
 
-const panelTools: Array<{ id: string; label: string; icon: string }> = [
-  { id: 'merge', label: 'Merge', icon: '📚' },
-  { id: 'split', label: 'Split', icon: '✂️' },
-  { id: 'organize', label: 'Organize', icon: '🗂️' },
-  { id: 'rotate', label: 'Rotate', icon: '🔄' },
-  { id: 'crop', label: 'Crop', icon: '🎯' },
-  { id: 'compress', label: 'Compress', icon: '🗜️' },
-  { id: 'convert', label: 'Convert', icon: '🔁' },
-  { id: 'protect', label: 'Protect', icon: '🔒' },
-  { id: 'forms', label: 'Forms', icon: '📋' },
-  { id: 'annots', label: 'Annots', icon: '💬' },
-  { id: 'ocr', label: 'OCR', icon: '🔍' },
+const panelTools: Array<{ id: string; label: string; icon: IconName }> = [
+  { id: 'merge', label: 'Merge', icon: 'merge' },
+  { id: 'split', label: 'Split', icon: 'split' },
+  { id: 'organize', label: 'Organize', icon: 'organize' },
+  { id: 'rotate', label: 'Rotate', icon: 'rotate' },
+  { id: 'crop', label: 'Crop', icon: 'crop' },
+  { id: 'compress', label: 'Compress', icon: 'compress' },
+  { id: 'convert', label: 'Convert', icon: 'convert' },
+  { id: 'protect', label: 'Protect', icon: 'protect' },
+  { id: 'forms', label: 'Forms', icon: 'forms' },
+  { id: 'annots', label: 'Annotations', icon: 'annots' },
+  { id: 'ocr', label: 'OCR', icon: 'ocr' },
 ]

@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import { Icon } from './Icon'
 
 interface Props {
   children: ReactNode
@@ -20,10 +21,14 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       return (
         <div className="workspace-empty">
-          <h2>Something went wrong</h2>
+          <h2>Well, that went sideways</h2>
           <p className="tool-hint">{this.state.error.message}</p>
-          <button type="button" className="btn btn-primary" onClick={() => window.location.reload()}>
-            Reload
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => window.location.reload()}
+          >
+            <Icon name="rotate" size={16} strokeWidth={2.1} /> Reload
           </button>
         </div>
       )

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { nextId } from '../../lib/editTypes'
 import type { SignatureRecord } from '../../lib/db'
 import { useSignatures } from '../../hooks/useSignatures'
+import { Icon } from '../Icon'
 
 const W = 320
 const H = 130
@@ -25,7 +26,7 @@ export function SignatureModal({
     const ctx = drawRef.current!.getContext('2d')!
     ctx.fillStyle = '#ffffff'
     ctx.fillRect(0, 0, W, H)
-    ctx.strokeStyle = '#c7cbe0'
+    ctx.strokeStyle = '#d8d2c4'
     ctx.strokeRect(0.5, 0.5, W - 1, H - 1)
   }
 
@@ -35,12 +36,15 @@ export function SignatureModal({
 
   const pos = (e: React.PointerEvent) => {
     const rect = drawRef.current!.getBoundingClientRect()
-    return { x: (e.clientX - rect.left) * (W / rect.width), y: (e.clientY - rect.top) * (H / rect.height) }
+    return {
+      x: (e.clientX - rect.left) * (W / rect.width),
+      y: (e.clientY - rect.top) * (H / rect.height),
+    }
   }
 
   const lineTo = (a: { x: number; y: number }, b: { x: number; y: number }) => {
     const ctx = drawRef.current!.getContext('2d')!
-    ctx.strokeStyle = '#1a2033'
+    ctx.strokeStyle = '#17141b'
     ctx.lineWidth = 2.5
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
@@ -53,7 +57,7 @@ export function SignatureModal({
   const renderTyped = (text: string) => {
     clearCanvas()
     const ctx = drawRef.current!.getContext('2d')!
-    ctx.fillStyle = '#1a2033'
+    ctx.fillStyle = '#17141b'
     ctx.font = '44px "Segoe Script", "Brush Script MT", "Comic Sans MS", cursive'
     ctx.textBaseline = 'middle'
     ctx.fillText(text || 'Signature', 16, H / 2)
@@ -74,13 +78,25 @@ export function SignatureModal({
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" role="dialog" aria-label="Create signature" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal"
+        role="dialog"
+        aria-label="Create signature"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>Signature</h3>
         <div className="seg-list">
           {(['draw', 'type', 'upload'] as const).map((t) => (
             <label key={t} className={`preset${tab === t ? ' active' : ''}`}>
               <input type="radio" name="sigtab" checked={tab === t} onChange={() => setTab(t)} />
-              <span className="preset-label">{t === 'draw' ? '✍️ Draw' : t === 'type' ? '⌨️ Type' : '📁 Upload'}</span>
+              <Icon
+                name={t === 'draw' ? 'sign' : t === 'type' ? 'keyboard' : 'folder'}
+                size={17}
+                strokeWidth={2}
+              />
+              <span className="preset-label">
+                {t === 'draw' ? 'Draw' : t === 'type' ? 'Type' : 'Upload'}
+              </span>
             </label>
           ))}
         </div>
@@ -186,7 +202,7 @@ export function SignatureModal({
                     aria-label={`Delete ${s.name}`}
                     onClick={() => void deleteSignature(s.id)}
                   >
-                    ×
+                    <Icon name="trash" size={14} strokeWidth={2.1} />
                   </button>
                 </div>
               ))}
@@ -196,7 +212,12 @@ export function SignatureModal({
 
         <label className="field">
           Name
-          <input className="input" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+          <input
+            className="input"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </label>
 
         <div className="tool-actions">

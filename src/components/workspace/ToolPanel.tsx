@@ -12,21 +12,22 @@ import { EditTool } from './tools/EditTool'
 import { FormsTool } from './tools/FormsTool'
 import { AnnotsTool } from './tools/AnnotsTool'
 import { OcrTool } from './tools/OcrTool'
+import { Icon, type IconName } from '../Icon'
 
 export const TOOLS = [
-  { id: 'edit', label: 'Edit', icon: '✏️', el: EditTool },
-  { id: 'ocr', label: 'OCR', icon: '🔍', el: OcrTool },
-  { id: 'forms', label: 'Forms', icon: '📋', el: FormsTool },
-  { id: 'annots', label: 'Annots', icon: '💬', el: AnnotsTool },
-  { id: 'merge', label: 'Merge', icon: '📚', el: MergeTool },
-  { id: 'split', label: 'Split', icon: '✂️', el: SplitTool },
-  { id: 'organize', label: 'Organize', icon: '🗂️', el: OrganizeTool },
-  { id: 'rotate', label: 'Rotate', icon: '🔄', el: RotateTool },
-  { id: 'crop', label: 'Crop', icon: '🎯', el: CropTool },
-  { id: 'compress', label: 'Compress', icon: '🗜️', el: CompressTool },
-  { id: 'convert', label: 'Convert', icon: '🔁', el: ConvertTool },
-  { id: 'protect', label: 'Protect', icon: '🔒', el: ProtectTool },
-] as const
+  { id: 'edit', label: 'Edit', icon: 'pen', el: EditTool },
+  { id: 'ocr', label: 'OCR', icon: 'ocr', el: OcrTool },
+  { id: 'forms', label: 'Forms', icon: 'forms', el: FormsTool },
+  { id: 'annots', label: 'Notes', icon: 'annots', el: AnnotsTool },
+  { id: 'merge', label: 'Merge', icon: 'merge', el: MergeTool },
+  { id: 'split', label: 'Split', icon: 'split', el: SplitTool },
+  { id: 'organize', label: 'Organize', icon: 'organize', el: OrganizeTool },
+  { id: 'rotate', label: 'Rotate', icon: 'rotate', el: RotateTool },
+  { id: 'crop', label: 'Crop', icon: 'crop', el: CropTool },
+  { id: 'compress', label: 'Squeeze', icon: 'compress', el: CompressTool },
+  { id: 'convert', label: 'Convert', icon: 'convert', el: ConvertTool },
+  { id: 'protect', label: 'Protect', icon: 'protect', el: ProtectTool },
+] as const satisfies ReadonlyArray<{ id: string; label: string; icon: IconName; el: unknown }>
 
 export function ToolPanel({
   doc,
@@ -43,6 +44,9 @@ export function ToolPanel({
 
   return (
     <aside className="toolpanel" aria-label="Tools">
+      <div className="panel-head">
+        <span>Toolbox</span>
+      </div>
       <div className="tool-list">
         {TOOLS.map((t) => (
           <button
@@ -51,7 +55,8 @@ export function ToolPanel({
             className={`tool-btn${t.id === toolId ? ' active' : ''}`}
             onClick={() => setToolId(t.id)}
           >
-            <span aria-hidden="true">{t.icon}</span> {t.label}
+            <Icon name={t.icon} size={20} strokeWidth={1.9} />
+            {t.label}
           </button>
         ))}
       </div>

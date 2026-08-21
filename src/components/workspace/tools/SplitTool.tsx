@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { downloadBytes } from '../../../lib/download'
 import { splitByMaxSize, splitEveryN, splitPdf } from '../../../lib/operations'
 import type { DocApi } from '../../../hooks/useDocument'
+import { Icon } from '../../Icon'
 
 function parseRanges(text: string): Array<[number, number]> | null {
   const parts = text
@@ -58,9 +59,7 @@ export function SplitTool({ doc }: { doc: DocApi }) {
   return (
     <div className="tool">
       <h3>Split PDF</h3>
-      <p className="tool-hint">
-        {doc.pageCount} pages in the current document.
-      </p>
+      <p className="tool-hint">{doc.pageCount} pages in the current document.</p>
 
       <div className="seg">
         <label className="radio-row">
@@ -118,7 +117,12 @@ export function SplitTool({ doc }: { doc: DocApi }) {
       </div>
 
       <div className="tool-actions">
-        <button type="button" className="btn btn-primary" onClick={() => void run()} disabled={busy}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => void run()}
+          disabled={busy}
+        >
           {busy ? 'Splitting…' : 'Split'}
         </button>
       </div>
@@ -127,7 +131,9 @@ export function SplitTool({ doc }: { doc: DocApi }) {
 
       {parts && (
         <div className="results">
-          <p className="msg ok">{parts.length} part{parts.length > 1 ? 's' : ''} created.</p>
+          <p className="msg ok">
+            {parts.length} part{parts.length > 1 ? 's' : ''} created.
+          </p>
           <button
             type="button"
             className="btn btn-sm"
@@ -136,12 +142,16 @@ export function SplitTool({ doc }: { doc: DocApi }) {
               parts.forEach((p, i) => downloadBytes(p, `${base}-part-${i + 1}.pdf`))
             }}
           >
-            ⬇️ Download all ({parts.length})
+            <Icon name="download" size={15} strokeWidth={2.1} /> Download all ({parts.length})
           </button>
           {parts.map((p, i) => (
             <div className="merge-row" key={i}>
               <span className="merge-name">Part {i + 1}</span>
-              <button type="button" className="btn btn-sm" onClick={() => downloadBytes(p, `part-${i + 1}.pdf`)}>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => downloadBytes(p, `part-${i + 1}.pdf`)}
+              >
                 Download
               </button>
               <button
