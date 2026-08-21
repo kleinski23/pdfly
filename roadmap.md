@@ -96,11 +96,11 @@
 
 ## Phase 5 — Version Control & Deployment
 
-- [ ] `git init` + `.gitignore` + initial commit (local history)
-- [ ] Create GitHub repo `pdfly`, push `main`
-- [ ] GitHub Actions CI: lint + typecheck + build on every PR
-- [ ] Connect Vercel: auto-deploy from `main`, preview deploys per PR
-- [ ] Custom domain + DNS + HTTPS
+- [x] `git init` + `.gitignore` + initial commit (local history)
+- [x] Create GitHub repo `pdfly`, push `main` → https://github.com/kleinski23/pdfly
+- [x] GitHub Actions CI: lint + typecheck + build on every PR (verified passing)
+- [ ] Connect Vercel: auto-deploy from `main`, preview deploys per PR — needs your Vercel account (one-time import, steps in `DEPLOY.md`)
+- [ ] Custom domain + DNS + HTTPS — after Vercel is live (steps in `DEPLOY.md`)
 
 ## Phase 6 — Launch & Growth
 
