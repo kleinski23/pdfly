@@ -8,14 +8,14 @@
 ## Overall Progress
 
 <!-- PROGRESS-START -->
-**`[█████████████████████████████████░░░░░░░]` ~83%** — 55 / 66 tasks completed
+**`[██████████████████████████████████░░░░░░]` ~85%** — 56 / 66 tasks completed
 
 | Phase | Done | Bar |
 |---|---|---|
 | Phase 0 — Local Foundation | 7/7 | `[██████████]` |
 | Phase 1 — Core PDF Tools (MVP) | 16/16 | `[██████████]` |
 | Phase 2 — Editing, Signing & Forms | 15/15 | `[██████████]` |
-| Phase 3 — OCR & Smart Features | 9/10 | `[█████████░]` |
+| Phase 3 — OCR & Smart Features | 10/10 | `[██████████]` |
 | Phase 4 — Local QA & Polish | 5/5 | `[██████████]` |
 | Phase 5 — Version Control & Deployment | 3/5 | `[██████░░░░]` |
 | Phase 6 — Launch & Growth | 0/4 | `[░░░░░░░░░░]` |
@@ -84,7 +84,7 @@
 - [x] Responsive mobile layout: stacked workspace + horizontal thumbnail rail
 - [x] Accessibility light pass: keyboard ops, aria labels, AA contrast tokens
 - [x] Performance benchmark: 100-page + 22MB test docs built; ops measured (see Notes) — interactive render timing pending manual browser check
-- [ ] Full WCAG 2.1 AA audit + fixes (before launch)
+- [x] Full WCAG 2.1 AA audit + fixes (axe-core sweep: landing, workspace, command palette, signature modal × both themes → 0 violations; landing demo animation opacity dimming removed — was compressing text contrast below AA thresholds)
 
 ## Phase 4 — Local QA & Polish
 
@@ -153,3 +153,4 @@ All well under PRD targets (compress 20MB < 10 s, open 100-page < 3 s). Interact
 - `scripts/verify-ops.ts` — 18/18 ✅ (merge, split, organize, crop, extract, compress, images→PDF, encrypt/unlock)
 - `scripts/verify-edit.ts` — 14/14 ✅ (annotations, notes, shapes, ink, forms fill + flatten, text-edit redaction)
 - `scripts/verify-ocr.ts` — 4/4 ✅ (render → OCR → searchable PDF with verified text layer)
+- `scripts/audit-a11y.mjs` — WCAG 2.1 AA axe-core audit (landing, workspace, command palette, signature modal × dark/light) → 0 violations (run `npm run audit:a11y` against the dev server; `--light|--dark|--both`)

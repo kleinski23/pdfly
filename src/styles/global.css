@@ -579,7 +579,6 @@ a {
   background: var(--surface);
   font-size: 14px;
   font-weight: 700;
-  opacity: 0.4;
   transform: translateX(-8px);
   animation: demo-row 5.4s infinite;
 }
@@ -645,17 +644,14 @@ a {
 @keyframes demo-row {
   0%,
   6% {
-    opacity: 0.4;
     transform: translateX(-8px) rotate(0deg);
   }
   16%,
   30% {
-    opacity: 1;
     transform: translateX(0) rotate(-0.6deg);
   }
   42%,
   100% {
-    opacity: 0.4;
     transform: translateX(-8px) rotate(0deg);
   }
 }
