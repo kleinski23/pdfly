@@ -8,7 +8,7 @@
 ## Overall Progress
 
 <!-- PROGRESS-START -->
-**`[████████████████████████████████░░░░░░░░]` ~79%** — 52 / 66 tasks completed
+**`[█████████████████████████████████░░░░░░░]` ~83%** — 55 / 66 tasks completed
 
 | Phase | Done | Bar |
 |---|---|---|
@@ -17,7 +17,7 @@
 | Phase 2 — Editing, Signing & Forms | 15/15 | `[██████████]` |
 | Phase 3 — OCR & Smart Features | 9/10 | `[█████████░]` |
 | Phase 4 — Local QA & Polish | 5/5 | `[██████████]` |
-| Phase 5 — Version Control & Deployment | 0/5 | `[░░░░░░░░░░]` |
+| Phase 5 — Version Control & Deployment | 3/5 | `[██████░░░░]` |
 | Phase 6 — Launch & Growth | 0/4 | `[░░░░░░░░░░]` |
 | Phase 7 — Backlog (later, only if users ask) | 0/4 | `[░░░░░░░░░░]` |
 <!-- PROGRESS-END -->
