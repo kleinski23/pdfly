@@ -1,0 +1,15 @@
+node_modules
+dist
+*.local
+.DS_Store
+.vercel
+
+# Generated test documents (recreated by scripts/bench.ts)
+test-data/
+
+# Language packs (re-downloaded by scripts/download-langdata.sh)
+public/tessdata/
+
+# Browser-test artifacts
+.playwright-mcp/
+*.traineddata
