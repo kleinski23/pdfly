@@ -8,7 +8,7 @@
 ## Overall Progress
 
 <!-- PROGRESS-START -->
-**`[██████████████████████████████████░░░░░░]` ~86%** — 57 / 66 tasks completed
+**`[███████████████████████████████████░░░░░]` ~88%** — 58 / 66 tasks completed
 
 | Phase | Done | Bar |
 |---|---|---|
@@ -17,7 +17,7 @@
 | Phase 2 — Editing, Signing & Forms | 15/15 | `[██████████]` |
 | Phase 3 — OCR & Smart Features | 10/10 | `[██████████]` |
 | Phase 4 — Local QA & Polish | 5/5 | `[██████████]` |
-| Phase 5 — Version Control & Deployment | 3/5 | `[██████░░░░]` |
+| Phase 5 — Version Control & Deployment | 4/5 | `[████████░░]` |
 | Phase 6 — Launch & Growth | 1/4 | `[███░░░░░░░]` |
 | Phase 7 — Backlog (later, only if users ask) | 0/4 | `[░░░░░░░░░░]` |
 <!-- PROGRESS-END -->
@@ -99,7 +99,7 @@
 - [x] `git init` + `.gitignore` + initial commit (local history)
 - [x] Create GitHub repo `pdfly`, push `main` → https://github.com/kleinski23/pdfly
 - [x] GitHub Actions CI: lint + typecheck + build on every PR (verified passing)
-- [ ] Connect Vercel: auto-deploy from `main`, preview deploys per PR — needs your Vercel account (one-time import, steps in `DEPLOY.md`)
+- [x] Connect Vercel: auto-deploy from `main`, preview deploys per PR — live (project `kleinskis-projects/pdfly`); **Deployment Protection still on, so the site is not public yet** (see Notes)
 - [ ] Custom domain + DNS + HTTPS — after Vercel is live (steps in `DEPLOY.md`)
 
 ## Phase 6 — Launch & Growth
@@ -156,7 +156,13 @@ All well under PRD targets (compress 20MB < 10 s, open 100-page < 3 s). Interact
 - Landing copy — the tool grid now carries all twelve tools as keyword-led `<h3>`s with descriptive copy, plus an eight-question FAQ (`<details>`) mirrored by the FAQPage structured data.
 - `npm run verify:seo` — 30 checks green: required tags present, title 49 chars, description 164 chars, canonical/robots/sitemap agree, JSON-LD parses, and all 8 FAQ Q&As match the visible page text. Wired into CI.
 - `npm run audit:a11y --both` re-run after the new FAQ markup → 0 violations, both themes.
-- Canonical host is `https://pdfly.vercel.app` in three files; swap them together when a custom domain lands (`DEPLOY.md` §3).
+- Canonical host is `https://pdfly-kleinskis-projects.vercel.app` in three files; swap them together when a custom domain lands (`DEPLOY.md` §3).
+
+### Deployment status (Phase 5)
+
+- Vercel is connected and deploying: `main` → production, preview per PR (verified on PR #1 — GitHub Actions + Vercel both green, production deploy created for the merge commit).
+- **Blocker for launch:** Vercel Deployment Protection (Vercel Authentication) is enabled, so every path — including `/robots.txt`, `/sitemap.xml`, `/og.png` — 302s to a Vercel login page. Crawlers and social scrapers see the login screen, not the app. Turn it off under **Settings → Deployment Protection** before Phase 6 launch.
+- `pdfly.vercel.app` (no account suffix) is not this project and returns 500 — do not use it as the canonical host.
 
 ### Acceptance evidence (Phase 4)
 

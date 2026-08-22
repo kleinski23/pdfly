@@ -8,14 +8,23 @@ Everything runs in the browser, so deployment is just static hosting — no serv
 - CI: `.github/workflows/ci.yml` runs lint + typecheck + build on every push/PR.
 - Generated files (`test-data/`, `public/tessdata/`) are git-ignored; the language packs are re-downloaded during the Vercel build by `scripts/download-langdata.sh` (cached by Vercel afterwards).
 
-## 2. Vercel (one-time, needs your account)
+## 2. Vercel — **connected**
 
-1. Go to https://vercel.com/new and **Import** the `pdfly` GitHub repository.
-2. Vercel auto-detects Vite from `vercel.json`:
-   - Build command: `bash scripts/download-langdata.sh && npm run build`
-   - Output: `dist`
-3. Click **Deploy**. `main` → production; every PR gets a preview URL automatically.
-4. Done — the site is live at `https://pdfly.vercel.app`.
+The repo is imported and deploying: `main` → production, every PR gets a preview URL.
+
+- Project: `kleinskis-projects/pdfly`
+- Production: <https://pdfly-kleinskis-projects.vercel.app>
+- Build command: `bash scripts/download-langdata.sh && npm run build` → `dist` (from `vercel.json`)
+
+> **Heads-up: the site is not public yet.** Deployment Protection (Vercel
+> Authentication) is switched on, so every request — including `/robots.txt`,
+> `/sitemap.xml` and `/og.png` — redirects to a Vercel login page. Crawlers and
+> social-card scrapers see the login screen, not the app. Turn it off under
+> **Settings → Deployment Protection** before launch, or the Phase 6 SEO work
+> has nothing to act on.
+>
+> Note that `pdfly.vercel.app` (without the account suffix) is **not** this
+> project — it returns a 500. The canonical URLs use the alias above.
 
 Notes:
 - The first build downloads ~68 MB of language packs (a few minutes); later builds reuse Vercel's cache.
