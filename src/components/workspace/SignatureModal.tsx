@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { nextId } from '../../lib/editTypes'
 import type { SignatureRecord } from '../../lib/db'
 import { useSignatures } from '../../hooks/useSignatures'
@@ -6,6 +6,9 @@ import { Icon } from '../Icon'
 
 const W = 320
 const H = 130
+// The backing store is drawn at 2x so strokes stay crisp on HiDPI screens.
+// Every drawing helper works in W/H user units and lets the context scale.
+const SCALE = 2
 
 export function SignatureModal({
   onClose,
@@ -22,17 +25,24 @@ export function SignatureModal({
   const drawRef = useRef<HTMLCanvasElement>(null)
   const lastRef = useRef<{ x: number; y: number } | null>(null)
 
-  const clearCanvas = () => {
+  /** Context with W/H user units mapped across the whole 2x backing store. */
+  const ctx2d = useCallback(() => {
     const ctx = drawRef.current!.getContext('2d')!
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, W, H)
-    ctx.strokeStyle = '#d8d2c4'
-    ctx.strokeRect(0.5, 0.5, W - 1, H - 1)
-  }
+    ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0)
+    return ctx
+  }, [])
+
+  const clearCanvas = useCallback(() => {
+    // Clear to transparent rather than painting a white plate: toDataURL bakes
+    // whatever is on the canvas into the saved PNG, and an opaque background
+    // would sit on the page as a white box over the document. The white card
+    // and its border come from `.sig-canvas` in CSS.
+    ctx2d().clearRect(0, 0, W, H)
+  }, [ctx2d])
 
   useEffect(() => {
     clearCanvas()
-  }, [])
+  }, [clearCanvas])
 
   const pos = (e: React.PointerEvent) => {
     const rect = drawRef.current!.getBoundingClientRect()
@@ -43,7 +53,7 @@ export function SignatureModal({
   }
 
   const lineTo = (a: { x: number; y: number }, b: { x: number; y: number }) => {
-    const ctx = drawRef.current!.getContext('2d')!
+    const ctx = ctx2d()
     ctx.strokeStyle = '#17141b'
     ctx.lineWidth = 2.5
     ctx.lineCap = 'round'
@@ -56,7 +66,7 @@ export function SignatureModal({
 
   const renderTyped = (text: string) => {
     clearCanvas()
-    const ctx = drawRef.current!.getContext('2d')!
+    const ctx = ctx2d()
     ctx.fillStyle = '#17141b'
     ctx.font = '44px "Segoe Script", "Brush Script MT", "Comic Sans MS", cursive'
     ctx.textBaseline = 'middle'
@@ -103,8 +113,8 @@ export function SignatureModal({
 
         <canvas
           ref={drawRef}
-          width={W * 2}
-          height={H * 2}
+          width={W * SCALE}
+          height={H * SCALE}
           className="sig-canvas"
           style={{ width: W, height: H }}
           onPointerDown={(e) => {
@@ -163,9 +173,9 @@ export function SignatureModal({
                 reader.onload = () => {
                   const img = new Image()
                   img.onload = () => {
-                    const ctx = drawRef.current!.getContext('2d')!
-                    ctx.fillStyle = '#ffffff'
-                    ctx.fillRect(0, 0, W, H)
+                    const ctx = ctx2d()
+                    // Keep the alpha channel of the uploaded image intact.
+                    ctx.clearRect(0, 0, W, H)
                     const scale = Math.min((W - 20) / img.width, (H - 20) / img.height, 1)
                     const w = img.width * scale
                     const h = img.height * scale
