@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Header } from './components/Header'
 import { Home } from './pages/Home'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -10,13 +10,19 @@ const Workspace = lazy(() => import('./components/workspace/Workspace'))
 export default function App() {
   const doc = useDocument()
   const [view, setView] = useState<'landing' | 'workspace'>('landing')
+  const { tryRestoreSession } = doc
+  const restoredRef = useRef(false)
 
-  // Restore the previous session (PRD PLT-010).
+  // Restore the previous session (PRD PLT-010). Depend on the stable callback, not
+  // the whole `doc` object — that is a fresh literal every render, so `[doc]` would
+  // re-restore (and re-key every file) on each commit, in an endless loop.
   useEffect(() => {
-    void doc.tryRestoreSession().then((restored) => {
+    if (restoredRef.current) return
+    restoredRef.current = true
+    void tryRestoreSession().then((restored) => {
       if (restored) setView('workspace')
     })
-  }, [doc])
+  }, [tryRestoreSession])
 
   const handleFiles = (files: File[]) => {
     void doc.loadFiles(files)
@@ -25,7 +31,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header />
+      <Header onHome={() => setView('landing')} />
       <ErrorBoundary>
         <main className={view === 'workspace' ? 'main main--wide' : 'main'}>
           {view === 'landing' ? (

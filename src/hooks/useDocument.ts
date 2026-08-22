@@ -33,16 +33,32 @@ export function useDocument() {
   }, [active?.bytes])
 
   const loadFiles = useCallback(async (list: File[]) => {
-    const loaded: SessionFile[] = await Promise.all(
-      list.map(async (file) => ({
-        id: crypto.randomUUID(),
-        name: file.name,
-        bytes: await file.arrayBuffer(),
-      })),
-    )
-    setFiles((prev) => [...prev, ...loaded])
-    setActiveId(loaded[0].id)
+    if (list.length === 0) return
+    try {
+      const loaded: SessionFile[] = await Promise.all(
+        list.map(async (file) => ({
+          id: crypto.randomUUID(),
+          name: file.name,
+          bytes: await file.arrayBuffer(),
+        })),
+      )
+      // Clear any banner left over from the file we were looking at before.
+      setLoadError(null)
+      setFiles((prev) => [...prev, ...loaded])
+      setActiveId(loaded[0].id)
+    } catch {
+      setLoadError('That file could not be read from your device. Try opening it again.')
+    }
   }, [])
+
+  // Undo history is per-document: opening or switching files starts a clean stack,
+  // so an undo can never write a different document's bytes over this one.
+  useEffect(() => {
+    undoStackRef.current = []
+    redoStackRef.current = []
+    setCanUndo(false)
+    setCanRedo(false)
+  }, [activeId])
 
   // Session recovery (PRD PLT-010): debounced snapshot of open files.
   useEffect(() => {
@@ -82,6 +98,11 @@ export function useDocument() {
       })
       .catch(() => {
         if (!cancelled) {
+          // Drop the previous document's page count rather than leaving a stale
+          // one on screen for a file that never opened.
+          setPageCount(0)
+          setCurrentPage(1)
+          setSelectedPages(new Set())
           setLoadError('This PDF could not be opened — it may be corrupt, password-protected, or not a real PDF file.')
         }
       })
