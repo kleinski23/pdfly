@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Runtime assets, not content — keep them out of the crawl budget.
+Disallow: /tessdata/
+Disallow: /tesseract/
+
+Sitemap: https://pdfly.vercel.app/sitemap.xml

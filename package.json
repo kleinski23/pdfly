@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "audit:a11y": "node scripts/audit-a11y.mjs"
+    "audit:a11y": "node scripts/audit-a11y.mjs",
+    "verify:seo": "node scripts/verify-seo.mjs",
+    "og:image": "node scripts/make-og-image.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
