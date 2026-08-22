@@ -4,22 +4,29 @@ import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 GlobalWorkerOptions.workerSrc = workerUrl
 
 // pdf.js transfers the data buffer to its worker, so we always hand it a copy.
-const cache = new Map<string, PDFDocumentProxy>()
+// The cache holds the in-flight promise, not the resolved proxy: the rail, canvas
+// and tools all ask for the same document at once, and caching only on resolve
+// would let every one of them spawn its own pdf.js worker.
+const cache = new Map<string, Promise<PDFDocumentProxy>>()
 
-export async function getDoc(id: string, bytes: ArrayBuffer): Promise<PDFDocumentProxy> {
+export function getDoc(id: string, bytes: ArrayBuffer): Promise<PDFDocumentProxy> {
   const hit = cache.get(id)
   if (hit) return hit
-  const doc = await getDocument({ data: new Uint8Array(bytes.slice(0)) }).promise
-  cache.set(id, doc)
-  return doc
+  const pending = getDocument({ data: new Uint8Array(bytes.slice(0)) }).promise
+  cache.set(id, pending)
+  // A failed load must not stick in the cache, or a retry can never succeed.
+  pending.catch(() => {
+    if (cache.get(id) === pending) cache.delete(id)
+  })
+  return pending
 }
 
 export function invalidateDoc(id: string): void {
-  const doc = cache.get(id)
-  if (doc) {
-    // pdfjs v6: teardown lives on the loading task, not the proxy.
-    void doc.loadingTask.destroy()
+  const pending = cache.get(id)
+  if (pending) {
     cache.delete(id)
+    // pdfjs v6: teardown lives on the loading task, not the proxy.
+    void pending.then((doc) => doc.loadingTask.destroy()).catch(() => {})
   }
 }
 

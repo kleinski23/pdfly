@@ -1,13 +1,24 @@
 import { useTheme } from '../hooks/useTheme'
 import { Icon } from './Icon'
 
-export function Header() {
+export function Header({ onHome }: { onHome?: () => void }) {
   const { theme, toggle } = useTheme()
 
   return (
     <header className="header">
       <div className="header-inner">
-        <a className="brand" href="/">
+        <a
+          className="brand"
+          href="/"
+          onClick={(e) => {
+            // Navigate in-app: a real reload would just restore the saved session
+            // and drop you straight back into the workspace. Let modified clicks
+            // (new tab/window) fall through to the browser.
+            if (!onHome || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+            e.preventDefault()
+            onHome()
+          }}
+        >
           <span className="brand-mark" aria-hidden="true">
             <Icon name="pen" size={21} strokeWidth={2.1} />
           </span>
