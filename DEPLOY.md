@@ -26,6 +26,18 @@ Notes:
 1. Buy a domain (e.g. `pdfly.app`) at any registrar.
 2. In Vercel: project → **Settings → Domains** → add the domain and follow the DNS instructions (point `@`/`www` to Vercel's `cname.vercel-dns.com`).
 3. HTTPS is automatic (Let's Encrypt, renews itself).
+4. **Update the canonical host in three files**, then re-deploy:
+   - `index.html` — `<link rel="canonical">`, `og:url`, `og:image`, `twitter:image`, and the `url` in the WebApplication JSON-LD
+   - `public/robots.txt` — the `Sitemap:` line
+   - `public/sitemap.xml` — the `<loc>` (and bump `<lastmod>`)
+
+   `npm run verify:seo` fails if those three drift apart, so run it before pushing.
+
+## 4. SEO assets
+
+- `npm run verify:seo` — checks meta tags, title/description length, canonical/robots/sitemap agreement, JSON-LD validity, and that the FAQ structured data still matches the questions rendered on the page. Runs in CI.
+- `npm run og:image` — regenerates `public/og.png` (1200×630 social card) from `scripts/make-og-image.mjs`. Needs local Chrome (`CHROME_PATH` to override). The PNG is committed, so the Vercel build never needs Chrome — only re-run it when the wording or brand palette changes.
+- After the first deploy, sanity-check the card with the [Facebook sharing debugger](https://developers.facebook.com/tools/debug/) and submit the sitemap in [Google Search Console](https://search.google.com/search-console).
 
 ## Local commands
 

@@ -9,11 +9,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#fff6e5" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#14121c" media="(prefers-color-scheme: dark)" />
+
+    <!-- ====================================================================
+         Canonical host. Lives in three places — here, public/robots.txt and
+         public/sitemap.xml. Change all three together when a custom domain
+         lands (see DEPLOY.md §3).
+         ==================================================================== -->
+    <link rel="canonical" href="https://pdfly.vercel.app/" />
+
+    <title>PDFly — Free PDF Editor That Runs In Your Browser</title>
     <meta
       name="description"
-      content="PDFly — edit PDFs in your browser. Compress, sign, merge, OCR and more. Files never leave your device. Free forever."
+      content="Compress, merge, split, sign, OCR and edit PDFs for free. Everything runs in your browser — no upload, no account, no watermark. Your files never leave your device."
     />
-    <title>PDFly — Edit PDFs in your browser</title>
+    <meta name="author" content="PDFly" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="application-name" content="PDFly" />
+    <meta name="apple-mobile-web-app-title" content="PDFly" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Open Graph (Facebook, LinkedIn, Slack, Discord…) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PDFly" />
+    <meta property="og:url" content="https://pdfly.vercel.app/" />
+    <meta property="og:title" content="PDFly — Free PDF Editor That Runs In Your Browser" />
+    <meta
+      property="og:description"
+      content="Compress, merge, split, sign, OCR and edit PDFs for free. Everything runs in your browser — no upload, no account, no watermark."
+    />
+    <meta property="og:image" content="https://pdfly.vercel.app/og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="PDFly — edit PDFs like a pro. Free, no upload, no account."
+    />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PDFly — Free PDF Editor That Runs In Your Browser" />
+    <meta
+      name="twitter:description"
+      content="Compress, merge, split, sign, OCR and edit PDFs for free. Everything runs in your browser — no upload, no account, no watermark."
+    />
+    <meta name="twitter:image" content="https://pdfly.vercel.app/og.png" />
+    <meta
+      name="twitter:image:alt"
+      content="PDFly — edit PDFs like a pro. Free, no upload, no account."
+    />
+
     <script>
       // Apply theme before first paint to avoid flash (kept in sync with src/hooks/useTheme.ts).
       try {
@@ -22,6 +68,112 @@
           (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
         document.documentElement.dataset.theme = t
       } catch (e) {}
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PDFly",
+        "url": "https://pdfly.vercel.app/",
+        "description": "A free PDF editor that runs entirely in the browser. Compress, merge, split, sign, OCR, annotate, fill forms, convert and protect PDFs without uploading them to a server.",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "PDF Editor",
+        "operatingSystem": "Any modern browser (Chrome, Edge, Firefox, Safari)",
+        "browserRequirements": "Requires WebAssembly and Web Workers",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Compress PDF with a target file size",
+          "Merge PDFs and images into one document",
+          "Split PDF by range, page count, or file size",
+          "Sign PDF by drawing, typing, or uploading a signature",
+          "OCR scanned PDFs in six languages",
+          "Edit existing PDF text",
+          "Organize, rotate, and crop pages",
+          "Convert images to PDF and PDF to JPG or PNG",
+          "Highlight, comment, and annotate",
+          "Fill and flatten PDF forms",
+          "Encrypt PDFs with AES-256 and remove known passwords"
+        ]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is PDFly actually free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes — every tool, with no account, no watermark, no page limits, and no trial. There is no server to pay for, so there is nothing to charge you for."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are my files uploaded anywhere?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Every page is opened, edited, and saved by your own browser. Nothing is sent to a server, because PDFly does not have one. You can confirm it by opening your browser’s network tab, or by going offline before you start."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I compress a PDF to a specific file size?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Pick a target such as “under 5 MB” and the compressor iterates through quality settings until it lands under your limit, showing the before and after size."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I edit text that is already in a PDF?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Select the text you want to change and type the replacement — the original characters are removed from the file rather than covered with a white box, so they cannot be recovered by copying the text."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the OCR work offline?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. OCR runs on Tesseract compiled to WebAssembly, in a background worker. Language packs download once and are cached, so after the first run the whole thing works with no connection."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How large a PDF can I open?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "There is no fixed limit — it depends on your device’s memory. Files over 100 MB show a heads-up that things may be slow, but they still open; a 22 MB scan and a 100-page document both work comfortably on an ordinary laptop."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it work on a phone or tablet?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The workspace stacks into a mobile layout with a horizontal thumbnail rail, and every tool works with touch."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which browsers are supported?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Any current Chrome, Edge, Firefox, or Safari — desktop or mobile. PDFly needs WebAssembly and Web Workers, which all of them have shipped for years."
+            }
+          }
+        ]
+      }
     </script>
   </head>
   <body>
