@@ -5,4 +5,4 @@ Allow: /
 Disallow: /tessdata/
 Disallow: /tesseract/
 
-Sitemap: https://pdfly.vercel.app/sitemap.xml
+Sitemap: https://pdfly-kleinskis-projects.vercel.app/sitemap.xml
